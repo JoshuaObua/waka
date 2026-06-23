@@ -1,0 +1,1541 @@
+# WAKA Property Management System (PMS)
+## Product Requirements Document (PRD) & Technical Development
+
+---
+
+# Project Name
+
+**WAKA Property Management System (WAKA PMS)**
+
+**Meaning:** "Waka" means *Home* in Luganda.
+
+## Project Vision
+
+WAKA is an enterprise-grade, multi-property property management platform designed to digitize, automate, and optimize residential, commercial, mixed-use, institutional, and estate property operations.
+
+The platform shall support both:
+
+1. **Single Property Management**
+2. **Multi-Property Portfolio Management**
+
+WAKA will enable landlords, property owners, real estate companies, property management firms, housing cooperatives, institutions, and estate developers to manage their properties from a centralized, secure, multi-tenant platform.
+
+The system must be scalable, cloud-native, API-first, secure, RBAC-driven, multi-tenant capable, and optimized for both web and mobile interfaces.
+
+---
+
+# Technology Stack
+
+## Frontend
+
+- Vue 3
+- Nuxt 4
+- TypeScript
+- TailwindCSS
+- Pinia
+- Vue Query
+
+## Backend
+
+- Golang
+- Gin/Fiber Framework
+- PostgreSQL
+- Redis
+- Supabase Storage
+- Supabase Auth (Optional)
+- WebSockets
+- JWT Authentication
+
+## Mobile Apps
+
+- Flutter
+- Android
+- iOS
+
+## Infrastructure
+
+- Docker
+- Kubernetes Ready
+- CI/CD pipelines
+- Object Storage
+- CDN Support
+- Infrastructure as Code (IaC)
+
+---
+
+# System Architecture
+
+## Core Modules
+
+1. Authentication & Security
+2. Property Management
+3. Building Management
+4. Unit Management
+5. Tenant Management
+6. Lease Management
+7. Rent Collection
+8. Wallet & Finance
+9. Utility Billing
+10. Service Charge Management
+11. Maintenance & Repairs
+12. Vendor Management
+13. Visitor Management
+14. Documents Management
+15. Notification Engine
+16. Reporting & Analytics
+17. Audit & Compliance
+18. User & Role Management
+19. Mobile Applications
+20. Support & Knowledge Base
+
+## Design Principles
+
+- API-first design with versioned REST and GraphQL endpoints
+- Tenant-aware security for strong data isolation
+- Role-based access control with fine-grained permission assignments
+- Mobile-first workflows and responsive web experiences
+- Modular, extensible architecture for future feature expansion
+- Auditability, compliance, and multi-jurisdiction support
+- Observability and operational transparency
+
+---
+
+# Multi-Tenant Architecture
+
+The platform shall support:
+
+## Option 1: Single Owner
+
+One landlord managing one or many buildings.
+
+## Option 2: Property Management Company
+
+A property management company managing dozens or hundreds of properties for multiple owners.
+
+## Option 3: Enterprise Estate Management
+
+Managing multiple estates and properties across cities, regions, and countries.
+
+### Data Isolation
+
+- Tenant-aware data partitioning by tenant ID, property, portfolio, or business unit
+- Logical separation for shared services, settings, and configuration
+- Per-tenant security controls and access policies
+- Scoped admin and owner portals for secure cross-property management
+
+---
+
+# RBAC (Role Based Access Control)
+
+## Dynamic Role Management
+
+Administrators must be able to:
+
+- Create roles
+- Edit roles
+- Clone roles
+- Disable roles
+- Archive roles
+- Restore archived roles
+
+## Permission Categories
+
+### Property Permissions
+
+- Create Property
+- Edit Property
+- Delete Property
+- View Property
+- Manage Property Settings
+
+### Unit Permissions
+
+- Create Units
+- Edit Units
+- Transfer Units
+- Lock Units
+- View Unit Status
+
+### Lease Permissions
+
+- Create Lease
+- Approve Lease
+- Renew Lease
+- Amend Lease
+- Terminate Lease
+- View Lease Documents
+
+### Financial Permissions
+
+- View Revenue
+- View Expenses
+- Approve Expenses
+- Reverse Payments
+- Refund Payments
+- Manage Budgets
+- View Ledgers
+
+### Maintenance Permissions
+
+- Create Requests
+- Assign Requests
+- Approve Requests
+- Close Requests
+- Manage Work Orders
+
+### Reports Permissions
+
+- View Reports
+- Export Reports
+- Schedule Reports
+
+### Administration Permissions
+
+- User Management
+- Role Management
+- System Configuration
+- Tenant Configuration
+- Audit Access
+
+### Additional Permission Areas
+
+- Notification Management
+- Document Management
+- Visitor Access Control
+- Utility & Billing Management
+- Vendor & Supplier Access
+- Support & Ticketing
+- Mobile / USSD Access
+- Integrations Management
+
+## Permission Rules
+
+- Permissions should be assignable at tenant, property, building, unit, and portfolio scope
+- Support granular actions (Create, Read, Update, Delete, Approve, Export, Publish, Archive, Manage)
+- Enable hierarchical role inheritance, role groups, and permission overrides
+- Allow custom permission labels and composite permission bundles
+- Enforce separation of duties and dual approval for sensitive operations
+- Support time-based access windows and temporary role assignments
+- Maintain audit history for role changes and approval workflows
+
+---
+
+# Property Classification Framework
+
+## Property Categories
+
+Every property must belong to one primary category before creation:
+
+1. Residential
+2. Commercial
+
+## Residential Property Types
+
+Administrators should be able to dynamically create and manage residential property types.
+
+Examples:
+
+- Apartment Complex
+- Rental House
+- Condominium
+- Townhouse
+- Villa
+- Hostel
+- Student Residence
+- Dormitory
+- Gated Community
+- Estate
+- Duplex
+- Triplex
+- Serviced Apartments
+- Senior Living Facility
+- Mixed Residential Development
+
+## Residential Unit Categories
+
+Examples:
+
+- Single Room
+- Bedsitter
+- Studio Apartment
+- One Bedroom
+- Two Bedroom
+- Three Bedroom
+- Four Bedroom
+- Penthouse
+- Maid's Room
+- Family Unit
+- Executive Suite
+
+## Commercial Property Types
+
+Administrators should be able to dynamically create and manage commercial property types.
+
+Examples:
+
+- Office Building
+- Business Park
+- Shopping Mall
+- Retail Center
+- Commercial Plaza
+- Warehouse
+- Industrial Park
+- Factory
+- Co-working Space
+- Medical Center
+- Hotel
+- Conference Center
+- Market Complex
+- Fuel Station
+- Mixed Commercial Development
+
+## Commercial Unit Categories
+
+Examples:
+
+- Retail Shop
+- Office Suite
+- Executive Office
+- Shared Office
+- Warehouse Unit
+- Storage Unit
+- Restaurant Space
+- Medical Office
+- Banking Hall
+- Showroom
+- Kiosk
+- Workshop
+- Industrial Space
+
+## Property Creation Workflow
+
+When creating a property, the user must complete the classification hierarchy:
+
+Property Category
+    ├── Residential
+    │     └── Property Type
+    └── Commercial
+          └── Property Type
+
+Example:
+
+Residential
+    └── Apartment Complex
+Commercial
+    └── Shopping Mall
+Residential
+    └── Hostel
+
+## Property Data Model
+
+### Property Category
+
+Required fields:
+
+- Category Name
+- Description
+- Status
+- Created By
+- Created Date
+
+### Property Type
+
+Required fields:
+
+- Category ID
+- Property Type Name
+- Description
+- Status
+
+Examples:
+
+- Category: Residential | Type: Apartment Complex
+- Category: Commercial | Type: Shopping Mall
+- Category: Commercial | Type: Warehouse
+- Category: Residential | Type: Hostel
+
+---
+
+# Property Management Module
+
+## Property Registration
+
+Each property should support:
+
+- Property Name
+- Property Code
+- Property Type
+- Description
+- Owner
+- Property Manager
+- Address
+- GPS Coordinates
+- District
+- City
+- Country
+- Land Title Number
+- Registration Number
+- Photos
+- Videos
+- Documents
+- Status and Lifecycle Metadata
+
+## Building and Block Management
+
+Properties can contain:
+
+- Buildings
+- Blocks
+- Towers
+- Wings
+
+Each building should support:
+
+- Building Name
+- Building Code
+- Number of Floors
+- Elevator Information
+- Building Photos
+- Occupancy Rate
+- Capacity
+- Accessibility Features
+- Fire and Safety Certification
+
+## Floor Management
+
+Support:
+
+- Dynamic Floor Creation
+- Floor Numbering
+- Floor Plans
+- Floor Maps
+- Level-specific amenities and access rules
+- Emergency exit and evacuation mapping
+
+## Unit Management
+
+### Dynamic Unit Categories
+
+Administrators can create and manage custom unit categories such as:
+
+- Studio
+- Single Room
+- Bedsitter
+- One Bedroom
+- Two Bedroom
+- Three Bedroom
+- Penthouse
+- Office Suite
+- Shop
+- Warehouse Unit
+
+Unit categories should be configurable and support category-specific attributes.
+
+### Unit Profiles
+
+Each unit should support:
+
+- Unit Number
+- Unit Name
+- Unit Category
+- Property
+- Building
+- Floor
+- Area (sqm)
+- Capacity
+- Rent Amount
+- Deposit Amount
+- Lease Status
+- Billing Status
+- Availability Status
+- Occupancy Status
+- Amenities
+- Photos
+- Floor Plans
+- Documents
+- Access Controls
+- Utility Meters and Account Linkage
+- Service Charge Profiles
+
+### Unit Statuses
+
+- Vacant
+- Occupied
+- Reserved
+- Under Maintenance
+- Suspended
+- Decommissioned
+
+### Unit Gallery
+
+Support:
+
+- Unlimited photos
+- Videos
+- Floor plans
+- Virtual tours
+- Image tagging
+- Multimedia asset metadata
+- Unit inspection photos and condition reports
+
+## Amenities Management
+
+Administrators can create and assign amenities dynamically to:
+
+- Property
+- Building
+- Unit
+
+Examples:
+
+- Swimming Pool
+- Gym
+- CCTV
+- Security
+- Internet
+- Parking
+- Backup Generator
+- Playground
+- Garden
+- Elevator
+- Business Center
+- Conference Facilities
+
+Amenity assignment should be supported by availability, location, access rules, and usage scheduling.
+
+## Portfolio and Asset Management
+
+Support:
+
+- Property groupings by portfolio, region, and asset class
+- Asset performance tracking by occupancy, revenue, and valuation
+- Lease and unit availability forecasting
+- Portfolio-level dashboards and exception alerts
+- Property acquisition and disposition tracking
+
+---
+
+# Tenant Management Module
+
+## Tenant Profile
+
+Each tenant profile should store:
+
+- Full Name
+- National ID
+- Passport Number
+- Photo
+- Phone
+- Email
+- Date of Birth
+- Gender
+- Marital Status
+- Occupation
+- Employer
+- Work Address
+- Emergency Contacts
+- Guarantor Information
+- Bank Details
+- Preferred Payment Method
+- Documents and Attachments
+- Communication Preferences
+- Tenant Type and Segment
+- KYC Status
+- Credit Score or Screening Results
+
+## Tenant Lifecycle
+
+The system should support:
+
+- Tenant onboarding by property owners, managers, and agents
+- Tenant self-registration from the mobile app and USSD interface
+- KYC profile completion and verification before unit assignment
+- Tenant verification and approval workflows
+- Tenant assignment, revocation, reassignment, and transfer of units
+- Eviction workflows
+- Tenant exit and deposit reconciliation
+- Tenant lease expiries and renewal management
+- Tenant performance history and arrears tracking
+- Exportable tenant lists and assignment history
+
+## Tenant Onboarding Flows
+
+Support:
+
+- Property owners and property managers onboarding tenants directly through the web portal or admin console
+- Tenant self-registration through the mobile app, tenant portal, or USSD flow with guided setup
+- Multi-step onboarding workflows with document upload, identity verification, KYC checklist, and profile validation
+- Optional tenant screening workflows including credit checks, background checks, employment validation, and guarantor approval
+- Mandatory KYC completion before unit assignment, with configurable verification checkpoints, status gating, and escalation rules
+- Approval gateways for owner review, leasing team sign-off, lease assignment, and unit allocation
+- Automatic matching of approved tenant profiles to available units, lease products, and payment plans
+- Integration with lease creation so onboarding flows transition seamlessly into billing, rent collection, and service charge setup
+- Tenant onboarding dashboards with progress tracking, missing document alerts, and approval status visibility for administrators
+- Tenant profile review and amendment workflows before final lease presentation
+- Tenant welcome package generation with lease instructions, payment setup, access credentials, and move-in checklists
+- Tenant data import and bulk onboarding support for CSV/Excel, partner portals, and corporate leasing programs
+- Tenant list export to CSV/Excel and secure reports for compliance, board review, and audit purposes
+- Onboarding templates and workflow presets for different tenant segments (residential, commercial, short-term, institutional)
+- Communication workflows for welcome emails, verification reminders, document expiry alerts, and onboarding task notifications
+- Audit logs for onboarding activity, profile changes, verification events, approvals, and user actions
+
+---
+
+# Lease Management
+
+## Lease Creation
+
+Lease agreements should support:
+
+- Tenant
+- Unit
+- Property
+- Lease Type
+- Start Date
+- End Date
+- Lease Term and Termination Date
+- Rent Amount
+- Security Deposit
+- Billing Cycle
+- Payment Terms
+- Late Payment Terms
+- Notice Period
+- Renewal Terms
+- Rent Escalation
+- Included Services
+- Utility and Service Charge Allocation
+- Deposits, Guarantees, and Insurance Requirements
+- Penalties and Fees
+- Lease Documents and Signatures
+- Renewal Options and Break Clauses
+- Tenant and Owner Obligations
+- Subletting and Assignment Rules
+- Early Termination Conditions
+- Access and Entry Rights
+- Dispute Resolution and Notice Contacts
+- Lease-specific rules and custom conditions
+
+## Lease Rules & Fees
+
+Support:
+
+- Penalties and fees defined as reusable rules with name, description, trigger, calculation method, and audit trail
+- Late payment penalties based on fixed amounts, percentages, daily/weekly accrual, and tiered escalation
+- Lease break penalties for early termination, abandonment, or improper notice
+- Notice period rules for both tenant and landlord termination, renewal, and rent review
+- Rent escalation rules by fixed amount, percentage, CPI/index-linked, step increases, or custom formulas
+- Billing cycle adjustments for prorated rent, lease start mid-cycle, anniversary rent reviews, and rent-free periods
+- Fee rules for administrative charges, dishonored payment fees, service charge penalties, legal fees, and inspection costs
+- Automated calculation of penalty amounts and reconciliation against tenant ledger accounts
+- Rule scoping by property, unit type, lease type, tenant segment, or regulatory jurisdiction
+- Approval workflows for penalty application, fee waiver, and discretionary charge exceptions
+- Audit logging of every rule application, override, and adjustment
+
+## Billing Cycles
+
+- Weekly
+- Monthly
+- Quarterly
+- Semi Annual
+- Annual
+- Biweekly
+- Custom billing cycle length
+- Prorated interim billing for lease start/end transitions
+- Consolidated billing across multiple leases for the same tenant or account
+- Split-cycle billing for mixed lease terms
+
+## Lease Workflows
+
+Support:
+
+- Lease approval with multi-step review, delegated approvals, and owner sign-off
+- Lease renewal with automated renewal offers, tenant decision windows, and renewal reminders
+- Lease termination with notice capture, inspection scheduling, move-out processing, and deposit reconciliation
+- Early termination with break clause handling, penalty assessment, and notice validation
+- Lease amendment for rent changes, service adjustments, lease extensions, and clause updates
+- Renewal reminders with staged notifications, acceptance tracking, and renewal document generation
+- Lease activation and hold workflows for provisional lease agreements
+- Lease templates, clause libraries, and digital signature capture
+- Lease anniversary and review reminders for rent escalation, contract renegotiation, and compliance checks
+- Conditional workflow rules based on tenant type, lease value, property class, and approval thresholds
+- Lease audit trail with change history, user comments, and version comparison
+- Integration with document management for lease agreements, addenda, disclosures, and approvals
+
+---
+
+# Rent Collection Module
+
+## Payment Methods
+
+Support:
+
+- Mobile Money with local operator integration, wallets, USSD fallback, and mobile payment link generation
+- Bank Transfer with local and international banking rails, SWIFT/SEPA support, and ACH/RTGS settlement
+- Wallet payment using tenant, owner, vendor, and platform wallets with ledger reconciliation
+- Debit Card and Credit Card processing with PCI-compliant tokenization, saved payment methods, and 3D Secure support
+- Cash payments with receipt capture, deposit tracking, and manual reconciliation tools
+- Cheque processing with deposit scheduling, clearing status, and bounce handling workflows
+- POS terminals and card present payments, with integration to portable POS devices and merchant settlement reporting
+- QR Code payments for scanning-based mobile payments, voucher payments, and instant wallet top-ups
+- Direct debit and ACH authorization for recurring rent and service charge collections
+- Biometric payment authorization for mobile app and kiosk collections where supported
+- Payment gateway abstraction with provider failover and dynamic routing
+- Multi-currency acceptance with conversion rules, currency selection, and currency revaluation
+- Split payments across methods, partial settlement, and installment collection
+- Preauthorized payments and payment mandates for automated recurring collections
+- Fee management for payment method surcharges, transaction fees, and merchant costs
+- Payment channel reporting for usage, success rates, and channel-specific reconciliation
+
+## Payment Transactions
+
+Features:
+
+- Invoice generation with lease, unit, service charge, utility, and ad hoc charge support
+- Payment receipts issuance with transaction references, receipt statuses, and printable/downloadable formats
+- Payment reconciliation across payment methods, bank settlements, mobile money, card capture, and wallet transactions
+- Overpayments, credits, refunds, and write-off handling with audit trail and customer statement updates
+- Advance rent management, deposit application, prepayment allocation, and refund scheduling
+- Late fee calculation based on configurable fee rules, grace periods, penalty schedules, and escalations
+- Payment posting to accounting ledgers with journal entries, GL mapping, tax treatment, and currency translation
+- Partial payment support, invoice splitting, and payment application rules for complex settlement scenarios
+- Auto-match payments to open invoices using reference codes, amounts, and tenant account mappings
+- Payment hold, dispute, and settlement workflows for compliance, chargebacks, and tenant claims
+- Recurring invoice generation, automatic payment authorization, and auto-billing support for recurring rent and service fees
+- Payment notifications, receipt notifications, and tenant reminders for upcoming or missed payments
+- Payment reversals, correction entries, and multi-step approval for sensitive financial adjustments
+- Integration with external payment gateways, banks, and reconciliation systems for real-time posting and settlement updates
+- Multi-currency transaction handling, exchange rate management, and foreign currency revaluation for invoices and receipts
+- Audit-ready payment history, transaction metadata, and user action logs for every payment event
+
+## Arrears and Collections
+
+Support:
+
+- Aging reports by tenant, unit, property, portfolio, invoice type, and overdue period
+- Dunning notices with configurable stage-based messaging, escalation rules, and channel delivery options
+- Reminder schedules for email, SMS, push, USSD, and portal notifications based on due dates and arrears thresholds
+- Collection workflows with collection stage management, responsible agents, task assignments, and audit trails
+- Bad debt tracking, provisioning, recovery forecasting, and write-off approvals
+- Collection scorecards, delinquency heatmaps, and recovery performance analytics
+- Tenant account statements, arrears summaries, and consolidated balance reports
+- Automated arrears classification, hold/restrict actions, and service disconnection workflows for non-payment
+- Dispute handling with dispute tickets, notes, investigation status, and resolution history
+- Legal escalation tracking with notice generation, eviction workflow handoff, and case management support
+- Payment plan negotiation support with installment schedules, partial payment agreements, and conditional waivers
+- Collection risk scoring and tenant credit impact indicators for portfolio risk management
+- Integration with CRM, debt collection partners, and recovery agencies for outsourced collections
+- Compliance with local debt collection regulations, fair practice notices, and consumer protection requirements
+- Manager dashboards for overdue balances, aging buckets, recoveries, and cash flow impact
+- Multi-tenant access controls for collections teams, property managers, and finance staff
+- Audit trail for every collection activity, notice sent, and payment promise tracking
+
+---
+
+# Wallet & Finance Module
+
+## Wallet System
+
+Support:
+
+- Tenant wallet balances with ledger-backed transaction histories
+- Landlord, property owner, and management company wallets
+- Platform commissions, fees, and automated revenue share allocations
+- In-app transfers between tenant, owner, vendor, and platform wallets
+- Wallet top-ups, withdrawals, and deposit handling
+- Wallet reconciliation with payment gateway settlements and bank statements
+- Hold, reserve, and release funds for security deposits, pending invoices, pre-authorizations, and escrow
+- Multi-currency balances with exchange rate conversion and currency revaluation
+- Wallet usage rules, spend limits, and wallet credit allowances per tenant or lease
+- Expiry, refund, and payout scheduling for wallet credits and retention reserves
+- Wallet notifications for balance changes, low balance alerts, and transaction confirmations
+- API access for wallet management, transaction posting, balance inquiry, and reconciliation
+- Audit trails for every wallet transaction, hold adjustment, release, and refund event
+- Support for tenant prepaid plans, recharge bundles, and loyalty/discount credits
+- Integration with payment processors, mobile money wallets, and banking rails
+
+## Expense Management
+
+Support:
+
+- Expense recording with full GL coding, tax treatment, and project/property tagging
+- Expense categories, cost centers, and customizable expense types
+- Vendor invoice capture, supplier bill entry, and receipt attachment
+- Approval workflows with multi-level review, delegated approvers, and threshold-based escalation
+- Reimbursements, employee expense claims, petty cash, and contractor payouts
+- Cost allocation by property, building, unit, lease, department, or business unit
+- Recurring expense scheduling, amortization, and budgeted cost matching
+- Purchase order support, GRN matching, and invoice validation with three-way matching
+- Expense splitting across multiple properties, units, or cost centers
+- Expense policy enforcement with spend limits, category restrictions, and approval gatekeeping
+- Budget tracking, variance analysis, and commitment accounting to compare planned vs actual spend
+- Vendor spend dashboards, trending analysis, and supplier cost benchmarking
+- Tax computed expense lines for VAT, GST, withholding tax, and local regulatory surcharges
+- Expense adjustment, correction, credit note handling, and write-off workflows
+- Integration with leasing, maintenance, service charge, and utility bills for full expense visibility
+- Auditable expense history, attachment management, and change log tracking
+- Multi-entity and multi-currency expense support for portfolio finance teams
+- Expense import/export for bulk data entry, ERP connectivity, and accounting migration
+- Payment scheduling, settlement tracking, and payment reconciliation for expense invoices
+
+---
+
+# Utility Billing Module
+
+Support:
+
+- Meter reading capture for electricity, water, gas, waste, sewage, solar, cooling, heating, and other utility types
+- Multi-source reading import with manual entry, mobile field capture, IoT/AMR integration, third-party metering feeds, and batch upload support
+- Meter lifecycle management with meter assignment, calibration history, replacement tracking, and meter reading validation
+- Utility tariff configuration supporting fixed, tiered, slab, time-of-use, seasonal, demand, consumption, flat-rate, and hybrid pricing models
+- Tariff versioning, effective date management, rate overrides, concession rates, and usage thresholds
+- Consumption-based billing with auto-calculation, aggregated consumption, prorated billing, historical usage baselines, and predictive consumption forecasts
+- Shared utilities allocation by unit, tenant, building, block, floor, common area, occupancy ratio, floor area, or custom allocation formula
+- Split billing for submetered and pooled utilities, common-area utilities, HOA/shared services, and special event/temporary usage
+- Utility invoices with detailed consumption breakdowns, tariff line items, service charges, surcharges, taxes, subsidies, penalties, and custom charge codes
+- Payment tracking for utility invoices, partial payments, overpayments, credits, deposits, payment adjustments, and write-offs
+- Billing cycles and schedules for monthly, quarterly, seasonal, bi-monthly, weekly, and annual billing periods
+- Automated bill generation, scheduled invoice publishing, bill reminders, recurring billing and auto-renewal for recurring services
+- Utility account profiling with utility account numbers, meter serials, service addresses, provider accounts, and tenant responsibility mapping
+- Notice and reminder workflows for bill due dates, late payment warnings, service disconnection notices, and payment confirmation
+- Utility dispute and exception handling workflows with meter re-read requests, bill adjustments, dispute resolution tracking, and verification notes
+- Consumption analytics and reporting with trends, peak usage, demand analysis, seasonal comparisons, conservation metrics, and usage forecasts
+- Integration with tenant, lease, unit, property, and vendor data to assign utility costs accurately and reflect lease terms
+- Utility cost recovery and recharge options for owner-paid utilities, service charge recovery, tenant-billed utilities, and utility allowances
+- Support for utility subsidies, rebates, hardship programs, concessions, and affordability adjustments
+- Tax, VAT, GST, and regulatory charge handling with jurisdiction-specific rules and configurable tax schedules
+- Utility charge reversals, corrections, credits, refunds, and reconciliation with accounting and ledger systems
+- Custom utility charge categories for water, electricity, waste, sewer, gas, district heating, telecom, internet, and amenity services
+- Meter reading exception alerts for missing reads, stale readings, abnormal consumption spikes, reverse flow, and meter faults
+- Consumption validation rules, wear-and-tear allowances, estimated reading logic, and auto-adjustments for missing or invalid readings
+- Utility invoice delivery via email, SMS, tenant portal, mobile app, and print-ready PDF statements
+- Role-based visibility for utility billing managers, property managers, owners, tenants, and accounting staff
+- Utility credit and deposit management with refundable security deposits, prepayments, and advance consumption credits
+- Multi-currency support, exchange rates, and international utility billing across jurisdictions
+- API endpoints for meter reading submission, tariff retrieval, utility bill generation, and utility payment reconciliation
+- Audit trail for meter reads, tariff changes, invoice edits, payment history, and utility billing adjustments
+- Utility billing dashboard with overdue balances, consumption hotspots, billing exceptions, revenue by utility type, and utility performance KPIs
+- Utility service provider integration, third-party billing system connectivity, and utility data import/export
+- Support for utility disconnection/reconnection workflows and service status tracking based on payment status and policy rules
+- Conservation and sustainability reporting for energy efficiency, water savings, waste reduction, and tenant engagement programs
+
+---
+
+# Service Charge Management
+
+Support:
+
+- Service charge budget planning with recurring budgets, expense forecasting, budget approval workflows, and budget revision history
+- Allocation rules by unit, building, property, tenant type, meter reading, occupancy ratio, or fixed share
+- Collections management for service charge invoicing, payment tracking, aging reports, dunning notices, and arrears monitoring
+- Expense reconciliation between service charge receipts, actual spending, third-party invoices, and provider payments
+- Service charge statements, account summaries, notice letters, and statement distribution with tenant-specific reporting and archival
+- Common Area Maintenance (CAM) fee calculation, allocation, and reconciliation across commercial, residential, and mixed-use portfolios
+- Service charge variance tracking and report generation for budget versus actual expense performance
+- Waivers, abatements, subsidies, discounts, and hardship adjustments for service charge accounts
+- Multicurrency support, tax treatment, and regulatory surcharge handling for service charge billing
+- Tenant-specific service charge profiles, billing cycles, and bill pooling for shared services
+- Automated statement generation, approval workflows, and delivery via email, SMS, and tenant/mobile notification channels
+- Dispute handling workflows for contested service charges, adjustment approvals, and audit trails
+- Service provider cost capture with integration to vendor invoices, purchase orders, and maintenance work orders
+- Allocation of administrative fees, management fees, and reserve contributions alongside service charge billing
+- Role-based visibility for property managers, owners, HOA boards, and tenant representatives
+- Historical service charge analytics, consumption trends, and portfolio-level reporting
+
+---
+
+# Maintenance & Repairs Module
+
+## Maintenance Requests
+
+Support:
+
+- Request creation through tenant portals, mobile apps, web forms, email, phone, kiosks, and USSD
+- Request categorization, service type, issue type, and priority levels
+- Property, building, floor, unit, asset, and lease assignment
+- Request status tracking with timestamps for request raised, accepted, scheduled, in progress, and closed
+- Photo, document, audio, and video attachments for issue evidence and condition capture
+- Request metadata such as impact severity, estimated cost, requested completion date, and tenant urgency
+- Automated request triage and categorization using templates, rules, and intelligent suggestions
+- Emergency and safety request flags with dedicated response workflows
+- Tenant self-service issue reporting with guided fault submission and location mapping
+- Request recurrence settings for repeat maintenance and planned preventative work
+
+## Workflow and Assignment
+
+Support:
+
+- Technician assignment, vendor assignment, and subcontractor dispatch
+- SLA definitions, service windows, response time targets, and completion time targets
+- Work order generation, scheduling, task lists, and mobile technician job cards
+- Statuses: New, Assigned, In Progress, On Hold, Scheduled, Resolved, Completed, Closed, Reopened
+- Predictive scheduling with resource availability, skill matching, and geographic optimization
+- Maintenance route planning, calendar integration, and dispatch coordination
+- Work order dependencies, prerequisites, and approval gating
+- Work order cost estimation, parts/materials tracking, labor hours, and time logging
+- Asset and equipment linkage for preventive maintenance, warranties, and lifecycle management
+- Maintenance checklists, inspection forms, and compliance requirements per request
+- Automated reassignment and escalation for SLA breaches and overdue tasks
+- Contractor onboarding and managed vendor pools for outsourced maintenance
+
+## Communication
+
+Support:
+
+- Request comments, internal notes, and stakeholder collaboration threads
+- Status notifications and alerts for tenants, owners, technicians, vendors, and managers
+- Customer feedback, ratings, and satisfaction surveys after completion
+- Tenant-facing updates through mobile app, SMS, email, and in-app feed
+- Technician notifications for new assignments, schedule changes, and parts requests
+- Maintenance escalation alerts for missed SLAs, safety incidents, and emergency responses
+- Service completion confirmations, warranty notifications, and maintenance follow-ups
+- Communication audit trails and notification logs for compliance and quality control
+- Knowledge base and FAQs for common maintenance issues and self-help troubleshooting
+
+---
+
+# Vendor Management
+
+Support:
+
+- Vendor profiles with company details, contact persons, service specialties, certifications, insurance, banking information, vendor tier, and approval status
+- Vendor onboarding workflows including registration, KYC, document verification, approval gates, and compliance checks
+- Contract lifecycle management with contract creation, renewals, amendments, milestones, termination, SLA definitions, pricing terms, and attached documents
+- Service catalog and categories for vendor skills, service types, preferred vendors, geographic service areas, and specializations
+- Performance tracking with SLA compliance, response times, work order completion rates, quality scores, tenant feedback, vendor scorecards, and issue resolution metrics
+- Payment terms management covering invoice submission, approval routing, scheduled payments, retainers, partial payments, holdbacks, dispute resolution, and payment history
+- Vendor assignment to maintenance requests, work orders, purchase orders, emergency callouts, and scheduled services
+- Expense and invoice reconciliation with PO matching, vendor billing, tax handling, currency conversion, and audit-ready payment records
+- Supplier relationship management with vendor tiering, blacklisting, preferred suppliers, exclusivity agreements, and risk profiling
+- Vendor document repository for licenses, certifications, insurance policies, contracts, compliance records, and expiry alerts
+- Vendor communication logs, notes, comments, and historical activity tracking per vendor engagement
+- Vendor performance analytics with spend reports, vendor ranking, cost benchmarking, service quality trends, and vendor spend by property or portfolio
+- Region and jurisdiction support including local tax configurations, currency management, and service-area compliance
+- Vendor self-service portal capabilities for invoice upload, service status updates, contract access, and payment notifications
+- Integration pathways for procurement, maintenance management, accounting, payment gateways, and third-party vendor platforms
+- Vendor dispute and claims workflows with escalation paths, resolution tracking, and audit trails
+- Vendor SLA breach detection, automated alerts, corrective action tracking, and compliance metrics
+
+---
+
+# Visitor Management
+
+Support:
+
+- Visitor registration with guest details, purpose of visit, expected arrival, vehicle information, and special instructions
+- Visitor pre-registration and invitation management for tenant, owner, staff, and visitor self-service workflows
+- Visitor badge generation with printable badge templates, QR codes, NFC entry passes, time-limited access, and custom branding
+- Host assignment linking visitors to unit, tenant, owner, property manager, or department hosts
+- Visit scheduling, appointment booking, approval workflows, and automated reminders for hosts and visitors
+- Access control with entry authorization, guard approval, checkpoint validation, access levels, and restricted area designation
+- Visit history and audit trail with check-in/check-out timestamps, badge issuance, access points, escort requirements, and visitor notes
+- Visitor pre-approval workflows for security checks, watchlist screening, and blacklist/whitelist management
+- Visitor check-in and check-out using mobile apps, kiosks, guard terminals, QR codes, and manual reception entry
+- Real-time visitor status tracking, dashboard visibility, and watchlist alerts for unauthorized or restricted visitors
+- Visitor document capture for ID verification, photograph capture, vehicle registration, and visit purpose documentation
+- Temporary access passes for vendors, contractors, delivery personnel, and event attendees
+- Parking allocation and visitor vehicle management with parking permit issuance and lane/lot tracking
+- Access expiration and automatic badge deactivation for one-time, recurring, or scheduled visits
+- Host notification and visitor arrival alerts by email, SMS, push notification, or in-app message
+- Visitor mobility and escort requirement flags for secure facilities and high-risk zones
+- Visitor compliance tracking for property rules, COVID/safety declarations, privacy notices, and liability agreements
+- Visitor metrics and reporting on guest volume, peak arrival times, host responsiveness, and access control effectiveness
+- Integration with property access systems, gate controls, alarm systems, and security cameras
+- Role-based visitor management access for security teams, receptionists, property managers, and compliance officers
+- Visitor feedback and satisfaction tracking for hospitality and community experience
+- Emergency evacuation and muster list support for visitor tracking during drills and incidents
+- Visitor data retention policies, privacy controls, and secure archival for compliance review
+
+---
+
+# Documents Management
+
+Support:
+
+- Upload and store property documents, lease agreements, invoices, receipts, maintenance reports, insurance certificates, compliance certificates, permits, warranties, inspection reports, contracts, and legal documents
+- Document categorization and metadata tagging for document type, property, unit, tenant, vendor, lease, expiry date, review status, and compliance classification
+- Version control and document history with change tracking, version compare, rollback, and approval workflows
+- Secure access and sharing with role-based document permissions, link-based sharing, password-protected downloads, and audit logging of document views and downloads
+- Document expiry alerts, renewal reminders, certificate expiry notifications, and automated owner/manager notifications
+- Document search, filtering, faceted navigation, and full-text search across document contents and metadata
+- Document workflow automation for review, approval, signature collection, renewal, and archival
+- Support for file types such as PDF, DOCX, XLSX, CSV, images, video, audio, and compressed archives
+- Document annotation, comments, and collaboration notes for supervision, maintenance, legal, and tenant review
+- Document retention and disposal policies with configurable retention schedules, legal hold, and secure purge workflows
+- Tenant document access portals with contextual document delivery for lease documents, invoices, statements, notices, and compliance records
+- Secure electronic signature integration and tracking for leases, consents, approvals, and vendor contracts
+- Document lock/unlock controls, check-in/check-out workflows, and concurrent access management
+- Compliance document repositories for audit documentation, insurance proof, regulatory filings, and safety certifications
+- Document import/export capabilities for bulk upload, archive export, and migration support
+- Intelligent document classification and OCR support for scanned documents and image-based attachments
+- Encrypted document storage with separate access controls for confidential, financial, legal, and personal information
+- Document change notification feeds for stakeholders when critical documents are updated or replaced
+- Support document templates for leases, contracts, notices, certificates, and standard letters
+
+---
+
+# Notification Engine
+
+## Channels
+
+Support:
+
+- Email
+- SMS
+- Push notifications
+- In-app notifications
+- Webhooks
+- USSD notifications
+- Voice calls / IVR notifications
+- WhatsApp and messaging integrations
+
+## Delivery Features
+
+Support:
+
+- Multi-channel routing with fallback logic
+- Channel preference management per user and tenant
+- Localized notifications in user preferred language
+- Scheduled delivery windows and quiet hours
+- Retry policies, dead-letter handling, and failure notifications
+- Throttling, rate limiting, and provider failover
+- Template versioning and audit-ready history
+- Notification batching for grouped reminders and digests
+- Custom branding per tenant, property, or business unit
+
+## Notification Types
+
+Support:
+
+- Payment reminders
+- Invoice delivery
+- Transaction history emails
+- Lease renewal alerts
+- Maintenance updates
+- Document expirations
+- Visitor alerts
+- Role-based announcements
+- System alerts
+- Account activation and onboarding notifications
+- Password reset and security alerts
+- Approval reminders and escalation alerts
+- Billing adjustment and refund notifications
+- Lease amendment and renewal confirmations
+- Service outage and disruption notifications
+- Vendor assignment and work order alerts
+- Compliance and audit reminders
+
+## Templates & Personalization
+
+Support:
+
+- Rich text templates with dynamic placeholders
+- Multi-language template management
+- Tenant-specific templates for branding and tone
+- Personalization using tenant, property, unit, lease, and user data
+- Conditional content blocks and smart templates
+- Template preview, test send, and approval workflows
+- Templates for email, SMS, push, USSD, and webhook payloads
+
+## Triggering & Automation
+
+Support:
+
+- Event-driven notifications from leases, payments, maintenance, visitors, documents, and audit events
+- Workflow-driven notifications for approvals, escalations, exceptions, and renewals
+- Scheduled and recurring notifications for periodic reminders and reports
+- Custom rule builder for event, time, and threshold conditions
+- Notification workflows with branching, approvals, and conditional actions
+- Webhook event publishing for external systems and integrations
+
+## User Preferences & Compliance
+
+Support:
+
+- Opt-in/opt-out preferences per channel and notification category
+- Do Not Disturb (DND) scheduling and quiet hours
+- Communication preference capture for tenants, owners, vendors, and staff
+- Consent tracking and opt-in history for audit and privacy compliance
+- Unsubscribe management for email and SMS channels
+- Privacy-safe delivery with masked data in SMS and push notifications
+
+## Monitoring & Analytics
+
+Support:
+
+- Delivery success, failure, open, click, and bounce metrics
+- Channel performance dashboards and trending reports
+- Notification audit logs with send time, channel, status, and content snapshot
+- Failed notification alerting and retry reporting
+- Usage metrics by tenant, property, role, and channel
+- Notification heatmaps for engagement and response analysis
+
+## Integrations
+
+Support:
+
+- External SMS and email provider integrations
+- Push notification services for Android and iOS
+- Webhook callbacks for external workflow systems
+- USSD gateway connectivity for non-smartphone user outreach
+- SMS/USSD two-way messaging for confirmations and responses
+- API endpoints for event notification publishing and status tracking
+
+---
+
+# Reporting & Analytics
+
+Support:
+
+- Occupancy and vacancy analytics by property, building, unit type, floor, and portfolio
+- Rental performance dashboards including rent collection rates, arrears aging, revenue yield, and lease renewal trends
+- Revenue and cash flow analysis with real-time inflows, outflows, receivable aging, and payment velocity
+- Expense reports for operating costs, maintenance spend, vendor spend, utility costs, and service charge reconciliation
+- Profit and loss statements by property, portfolio, business unit, and management entity
+- Tenant churn and retention analytics with move-in/move-out trends, lease renewal rates, and satisfaction correlations
+- Maintenance KPIs such as request volume, response time, completion time, SLA compliance, cost per work order, and technician efficiency
+- Property portfolio analytics for occupancy, revenue mix, diversification, asset performance, and trend forecasting
+- Custom report builder with templates, saved definitions, parameterized filters, and multi-tenant scoping
+- Export to PDF, Excel, CSV, and JSON for sharing, audit, and downstream analytics
+- Executive dashboards with portfolio heatmaps, KPI scorecards, and actionable insights for owners and managers
+- Lease analytics covering rent escalations, upcoming expiries, scheduled renewals, and vacant unit forecasting
+- Payment analytics covering collections performance, payment channel mix, refund rates, and reconciliation gaps
+- Utility and service charge analytics across shared services, consumption trends, variance analysis, and recovery rates
+- Budget versus actual analytics for operating budgets, service charge budgets, and capital expenditure plans
+- Custom KPIs and metric definitions with formulas, thresholds, and alert triggers
+- Scheduled report distribution via email, mobile push, and portal notifications
+- Real-time analytics with drill-down capabilities, ad hoc querying, and interactive visualizations
+- Cross-property benchmarking and performance comparison between assets, property types, and regions
+- User-defined dashboards for owners, property managers, accountants, maintenance, and support teams
+- Audit-ready reports with timestamped exports, report versioning, and data lineage metadata
+- Integration with BI tools, data warehouses, and external analytics platforms via APIs and data exports
+- Data visualization support for charts, tables, maps, trend lines, cohorts, and pivot analysis
+- KPI alerts and threshold monitoring for occupancy drops, overdue collections, maintenance backlogs, and compliance deviations
+- Category-based dashboard analytics for residential and commercial portfolios
+
+---
+
+# Audit & Compliance
+
+Support:
+
+- Audit logs for system events, financial transactions, tenant payments, user actions, administrative changes, permission updates, and configuration deployments
+- Activity tracking for users, tenants, owners, managers, support staff, vendors, and external integrations with session context and workflow state
+- Change history for property, unit, lease, invoice, payment, maintenance request, ticket, vendor contract, and approval record updates
+- Access logs detailing authentication events, API calls, failed logins, session duration, privilege elevation, IP address, device fingerprint, and geographic source
+- Compliance reporting for regulatory, tax, KYC, AML, data privacy, audit readiness, and industry-specific housing regulations
+- Data retention policies with configurable retention schedules, archiving, secure deletion, legal hold support, and retention exception workflows
+- Immutable, tamper-evident audit trails for critical workflows, financial approvals, lease signatures, and dispute resolution
+- Role-based access to audit and compliance reports, with tenant-level, property-level, and system-level visibility controls
+- Exportable audit reports to CSV, Excel, PDF, JSON, and compliance-specific formats for auditors and regulators
+- Compliance dashboards for data privacy, financial controls, SLA adherence, occupancy compliance, and risk posture monitoring
+- Automated alerts and workflows for policy violations, unauthorized access, suspicious activity, expired certifications, and compliance drift
+- Scheduled audit reviews, exception tracking, investigation notes, and escalation workflows for remediation
+- Audit certification mapping and support for ISO 27001, PCI-DSS, SOC 2, GDPR, local tax, housing, and property management standards
+- Secure storage with encryption-at-rest and encryption-in-transit for archived audit records, compliance documents, and evidence artifacts
+- Audit trail search, filtering, retention filtering, and forensic investigation tools for rapid incident response
+- Versioned document and contract audits with old/new comparison, change annotation, and approval history
+- Data subject access request support, privacy consent tracking, and right-to-be-forgotten workflows
+- Regulatory and geo-fencing controls for data residency, sovereignty, and jurisdiction-specific record handling
+- Periodic compliance assessment reports, audit readiness checks, and evidence packaging for external auditors
+- Audit log retention management with automatic purge, archival workflows, and compliance-safe deletion controls
+
+---
+
+# User & Role Management
+
+## User Management
+
+Support:
+
+- User creation with tenant, property, role, and contact assignment
+- User import/export via CSV, Excel, JSON, and bulk onboarding workflows
+- User activation/deactivation, account locking, suspension, and soft deletion
+- Profile management for personal, contact, employment, identity, and access details
+- Multi-factor authentication with OTP, email, SMS, authenticator apps, biometrics, and device trust
+- Tenant self-registration support with guided signup, KYC capture, identity verification, and approval workflows
+- Property owner tenant onboarding support with owner-managed invitations, tenant assignment, and lease initiation
+- Passwordless login, password reset, and secure account recovery workflows
+- Single sign-on (SSO) integration via OAuth2, OpenID Connect, SAML, and enterprise identity providers
+- User session and device management with session history, active session revocation, and login notifications
+- Role-based access assignment, user groups, team membership, and delegated administration
+- User status dashboards with onboarding progress, access approvals, and compliance checkpoints
+- User audit logs for login activity, profile changes, role changes, and permission updates
+- External identity provider support for social, corporate, and partner authentication
+- User consent management, privacy preferences, and communication preferences
+- Tenant and owner user directory with search, filters, and hierarchical property/portfolio views
+- User impersonation support for administrators with audit trail and restricted scope
+- Notifications for account activation, approval, password changes, and security alerts
+- Temporary user accounts for contractors, vendors, and seasonal staff
+- Support for emergency access roles and break-glass procedures
+
+## Role Management
+
+Support:
+
+- Create roles with descriptive names, ownership, and tenant/property scope
+- Assign permissions to roles using granular action sets and functional categories
+- Clone roles to quickly replicate existing role definitions and modify them
+- Edit roles with change tracking, version history, and approval workflows
+- Disable roles temporarily without deleting role definitions or audit history
+- Archive and restore roles for audit compliance, role hygiene, and lifecycle management
+- Tenant-specific roles that can be scoped to a single tenant, property, portfolio, or business unit
+- Owner tenant onboarding permissions for selective role assignment during tenant onboarding and guest access
+- Tenant self-service permission sets for controlled tenant portal access to profile, payments, service requests, documents, and communications
+- Default system roles for super admin, property manager, owner, tenant, vendor, maintenance staff, reception/security, and support agent
+- Custom role types for marketing, accounting, facility management, HOA board, investor, and partner access
+- Permission assignments via role groups, role bundles, and dynamic role templates
+- Role hierarchy and inheritance to manage senior/junior roles, escalation chains, and segregated duties
+- Role expiration, temporary access, and time-based access windows for contractors and temporary staff
+- Role change request workflows with approval, review, and audit logging
+- Role simulation and access preview for administrators before applying permission changes
+- Role-based dashboards and navigation tailored by user type, tenant, property, and region
+- Policy enforcement for critical security roles, separation of duties, and dual approval for sensitive operations
+- Support for role-based MFA, access approval, and privileged access management
+- Role audit logs to track who created, modified, enabled, disabled, or archived roles and when
+
+## Permission Categories
+
+Support:
+
+- Property management
+- Unit management
+- Lease management
+- Financial management
+- Maintenance management
+- Reporting
+- Administration
+- Notification management
+- Tenant self-service
+- Vendor and supplier access
+- Visitor access control
+- Utility and billing management
+- Audit and compliance access
+- Document management
+- Support and ticketing
+- Mobile and USSD user access
+- System configuration and integrations
+
+Permissions should be:
+
+- Assignable at tenant, property, building, unit, and portfolio scope
+- Configurable per role, per user, and per functional area
+- Grantable as granular actions (Create, Read, Update, Delete, Approve, Export, Publish, Archive, Manage)
+- Support hierarchical role inheritance and permission overrides
+- Include separation of duties and dual-approval workflows for critical operations
+- Enforce session limits, access windows, and time-based restrictions for sensitive functions
+- Support audit-friendly permission changes with review history and approval logs
+- Enable custom permission groups and composite permission bundles for fast role building
+- Allow tenant-specific custom permission labels and business rule mapping
+
+---
+
+# Mobile Applications
+
+## Mobile Strategy
+
+Support:
+
+- Native Flutter apps for Android and iOS
+- Persona-based app experiences for tenants, owners, managers, maintenance teams, security, and visitors
+- Offline support with local queueing and retry
+- Push notifications and deep-link support
+- Secure local storage and biometric authentication
+- Mobile-first forms, payment flows, and self-service workflows
+- API integration with backend services for real-time updates
+- Mobile analytics and crash reporting
+- Mobile app health checks and performance monitoring
+
+## Mobile Experiences
+
+### Tenant App
+
+Support:
+
+- Self-service onboarding and KYC
+- Home dashboard with lease, payment, and notification summaries
+- Invoice and payment screens
+- Digital wallet management
+- Maintenance request creation and tracking
+- Document library access
+- Visitor guest registration and access passes
+- Community announcements and notices
+- Profile and security settings
+- Support ticket creation and knowledge base access
+
+### Owner / Manager App
+
+Support:
+
+- Portfolio overview
+- Property, unit, and lease management
+- Tenant onboarding and approval
+- Payment collection and reconciliation
+- Maintenance and vendor oversight
+- Reports and analytics snapshots
+- User and role access controls
+- Alerts and task management
+
+### Maintenance Team App
+
+Support:
+
+- Assigned work orders
+- Ticket details and updates
+- Maintenance checklist execution
+- Photo and attachment capture
+- Status updates and completion reports
+- Communication with tenants and managers
+
+### Visitor App
+
+Support:
+
+- Guest registration and pre-authorization
+- QR code and badge generation
+- Visit scheduling and host notification
+- Access history and feedback
+
+### Admin / Support App
+
+Support:
+
+- Ticket queue and SLA dashboard
+- Knowledge base and FAQ management
+- Department routing and escalation controls
+- Ticket assignment and response tracking
+- Audit and compliance checks
+
+---
+
+# USSD & Self-Service Interface
+
+Support:
+
+- USSD menu-driven rent payments and top-ups
+- Tenant and landlord self-service registration, login, and profile status checks
+- Unit rental status, lease status, and rental balance lookup
+- Transaction history, recent payments, and wallet history retrieval
+- Invoicing, receipt, statement, and payment schedule requests
+- Maintenance request, complaint, and support ticket submission
+- FAQ, knowledge base article, and service guide access via USSD or SMS links
+- SMS and USSD confirmations for payments, invoices, ticket updates, and status checks
+- Automatic email delivery of transaction history, statements, invoices, and notices
+- Support for tenant and landlord short codes and secure USSD session handling
+- Payment gateway and local payment integration
+- Cross-channel verification for secure payment authorization via OTP, SMS, or email
+- Scheduled payment reminders and renewals via USSD/SMS
+- Smart menu routing based on user type, property, unit, and account status
+- Configurable USSD workflows for local markets and language support
+- Transaction reversals, refunds, and payment disputes initiated via USSD
+- Secure UPI/USSD PIN and biometric fallback for mobile app-backed USSD enrollments
+- Audit logging for USSD actions, payments, ticket submissions, and status queries
+- Offline transaction retry support and failure recovery notifications
+- Multi-tenant routing so requests and payments are routed to the correct property/department
+- Multi-currency and localized payment messaging
+- Communication preference and opt-in management
+
+---
+
+# Support & Knowledge Base Module
+
+Support:
+
+- Dynamic CMS for knowledge base articles and FAQ content
+- Manage categories, articles, tags, and visibility
+- Publish announcements, how-to guides, and policy documentation
+- FAQ management with searchable content
+- Ticket creation from mobile app and web portal
+- Complaint submission and suggestion collection
+- Assign tickets and complaints to configurable departments
+- Support department configuration by property, region, or business unit
+- Routing rules based on issue type, priority, property, or tenant category
+- Ticket status tracking, escalation workflows, and SLA management
+- Email and push notifications for ticket updates and department responses
+- Full ticket history, comments, attachments, and audit trails
+- Reporting on ticket volume, response times, complaint categories, and resolution rates
+- Exportable support tickets, complaints, and suggestion logs
+- Knowledge base analytics and user satisfaction tracking
+
+---
+
+# Infrastructure & Deployment
+
+Support:
+
+- Docker containerization
+- Kubernetes-ready deployment
+- CI/CD pipelines and release automation
+- Cloud-native architecture
+- Object storage and CDN support
+- Database backups and failover
+- Infrastructure as Code for repeatable deployments
+- Environment configuration management for dev, test, staging, and prod
+- Container registry and image lifecycle management
+- Blue/green and canary rollout support
+- Service discovery and load balancing
+- Auto-scaling for compute, storage, and messaging services
+- High availability across regions/zones
+- Disaster recovery planning and failover orchestration
+- Log aggregation and centralized monitoring
+- Metrics, tracing, and health check endpoints
+- Alerting and incident management
+- DevOps workflows for build, test, deploy, and rollback
+- Security practices for vulnerability scanning, secrets management, and compliance
+- Network segmentation, firewall rules, and secure ingress/egress
+- API gateway and rate limiting
+- Configuration drift prevention
+- Backup validation and restore testing
+- Observability for application, infrastructure, and user experience
+- Cost monitoring and optimization
+- Support for hybrid cloud, multi-cloud, and on-premises deployment models
+
+---
+
+# Non-Functional Requirements
+
+## Scalability
+
+- Support growth from small portfolios to enterprise estates with thousands of units and hundreds of tenants
+- Scale database, API, and background processing independently
+- Support horizontal scaling for web, mobile backend, and real-time services
+- Support tenant-aware sharding, partitioning, or multi-tenant scaling strategies
+- Provide capacity planning guidance and usage monitoring
+
+## Security
+
+- Secure authentication and authorization with RBAC and MFA
+- Encrypt data in transit and at rest
+- Strong password policies, session management, and token lifetimes
+- Secure API access with rate limiting, input validation, and anti-CSRF controls
+- Protect against common web/mobile vulnerabilities (OWASP Top 10)
+- Audit logs for security events, access, and configuration changes
+- Role-based access for property owners, managers, tenants, and support staff
+- Data privacy and GDPR-style controls for personal information
+- Secure key and secret management for infrastructure and integrations
+
+## Performance
+
+- Fast page load times and API response times under normal and peak usage
+- Support concurrent users across web, mobile, and API clients
+- Maintain performance for billing, reporting, and search queries
+- Use caching and optimized queries for dashboards and frequent operations
+- Monitor latency, throughput, and error rates
+
+## Reliability
+
+- Ensure predictable system behavior with high availability
+- Support retry, backoff, and graceful degradation for external services
+- Design fault-tolerant services for payments, notifications, and data storage
+- Provide system health checks and self-healing deployment patterns
+- Maintain consistent state across multi-step workflows such as lease creation and payment posting
+
+## Availability
+
+- Target high uptime for production deployments
+- Plan for scheduled maintenance with notifications and minimal disruption
+- Provide failover and recovery mechanisms for critical services
+- Support disaster recovery with backup and restore procedures
+
+## Usability
+
+- Build intuitive workflows for property managers, owners, and tenants
+- Provide clear onboarding, guided setup, and help content
+- Support mobile-first, responsive design patterns
+- Minimize required steps for common tasks
+- Provide error handling with useful messaging and remediation steps
+
+## Accessibility
+
+- Conform to accessibility standards such as WCAG 2.1 AA where feasible
+- Provide screen reader support, keyboard navigation, and accessible forms
+- Ensure color contrast, text sizing, and UI clarity for all users
+- Support accessibility features in mobile apps
+
+## Internationalization and Localization
+
+- Support multiple languages and region formats
+- Localize currency, date, time, number, address, and phone formats
+- Enable configurable locale settings per tenant or property
+- Support translations for mobile and web interfaces
+
+## Maintainability
+
+- Modular architecture with clear separation of concerns
+- Well-documented APIs, data models, and deployment processes
+- Automated testing for unit, integration, and end-to-end workflows
+- Code quality standards and linting for frontend and backend
+- Maintain stable versioning and release management
+- Provide operational runbooks and onboarding docs for support teams
+
+## Extensibility
+
+- Support plugin-like modules, configurable business rules, and feature flags
+- Allow adding new payment methods, property types, and report templates
+- Provide extension points for external integrations and custom workflows
+- Design APIs and data schemas to support future features without broad refactoring
+
+## Interoperability
+
+- Use standard protocols (REST, GraphQL, WebSocket) for integration
+- Support import/export via CSV, Excel, JSON, and APIs
+- Provide webhook events for external systems
+- Integrate with payment providers, messaging services, authentication providers, and third-party tools
+
+## Observability and Monitoring
+
+- Track application and infrastructure metrics, logs, and traces
+- Monitor errors, performance, usage, and security incidents
+- Provide alerting for critical failures, high latency, and payment issues
+- Keep dashboards for business metrics such as occupancy, collections, and ticket backlog
+
+## Data Management
+
+- Define retention policies for lease, tenant, and accounting data
+- Support secure backups, restore points, and archival storage
+- Provide audit trails for financial transactions and configuration changes
+- Ensure data consistency across tenant and property boundaries
+
+## Compliance
+
+- Support local regulatory and tax compliance requirements
+- Provide configurable audit reporting and document retention
+- Manage user consent and privacy disclosures
+- Support KYC verification workflows and tenant identity checks
+
+## Supportability
+
+- Provide logs, diagnostics, and troubleshooting tools for administrators
+- Include support workflows for tickets, complaints, and knowledge base management
+- Design operations for automated deployment, rollback, and configuration management
+- Enable tenant/owner administration and data export for audits
+
+## Resilience
+
+- Design for partial failure with isolated service faults
+- Support graceful error handling for external dependency failures
+- Maintain transactional consistency for payments, leases, and account balances
+- Provide rollback or compensation actions for failed workflows
+
+---
+
+# Future Enterprise Features
+
+- AI rental price prediction and dynamic rent recommendations
+- AI maintenance cost forecasting and preventative alerts
+- Smart occupancy analytics and asset utilization forecasting
+- IoT integrations for smart meters, sensors, energy, and environmental monitoring
+- Smart locks and electronic access control integration
+- Electronic lease signing and contract automation
+- Community marketplace and resident social network
+- Insurance integration and claims tracking
+- Loan and mortgage product integration for property financing
+- Partner marketplace for service providers, suppliers, and professional services
+- Tenant loyalty, rewards, and engagement programs
+- Investor portal and asset performance modelling
+- Blockchain-ready audit trail and smart contract support for advanced use cases
+
+---
+
+# Summary
+
+WAKA PMS should be a fully integrated platform that supports property operations from registration through leasing, billing, maintenance, and reporting. The architecture must be secure, tenant-aware, highly configurable, and built for web and mobile users across small landlords, property management companies, and enterprise estate operations.
