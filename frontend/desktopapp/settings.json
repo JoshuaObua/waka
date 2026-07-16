@@ -18,7 +18,7 @@
         "log_file": "debug.log"
     },
     "main_window": {
-        "title": "PHP Desktop Chrome",
+        "title": "WAKA Property Management System",
         "icon": "",
         "default_size": [
             800,
