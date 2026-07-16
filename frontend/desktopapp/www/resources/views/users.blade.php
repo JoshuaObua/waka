@@ -48,6 +48,7 @@
                             <thead>
                                 <tr>
                                     <th>First Name</th>
+                                    <th>Middle Name</th>
                                     <th>Last Name</th>
                                     <th>Email</th>
                                     <th>Phone Number</th>
@@ -59,6 +60,7 @@
                             <tfoot>
                                 <tr>
                                     <th>First Name</th>
+                                    <th>Middle Name</th>
                                     <th>Last Name</th>
                                     <th>Email</th>
                                     <th>Phone Number</th>
@@ -71,6 +73,7 @@
                                 @foreach($users as $user)
                                     <tr>
                                         <td>{{ $user['first_name'] ?? '' }}</td>
+                                        <td>{{ $user['middle_name'] ?? '' }}</td>
                                         <td>{{ $user['last_name'] ?? '' }}</td>
                                         <td>{{ $user['email'] ?? '' }}</td>
                                         <td>{{ $user['phone_number'] ?? '' }}</td>

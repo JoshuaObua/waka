@@ -42,15 +42,23 @@
                         
                         <div class="row clearfix">
                             <!-- First Name -->
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <div class="form-group">
                                     <label for="first_name">First Name</label>
                                     <input type="text" name="first_name" id="first_name" class="form-control" placeholder="Enter first name" value="{{ old('first_name') }}" required>
                                 </div>
                             </div>
                             
+                            <!-- Middle Name -->
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="middle_name">Middle Name</label>
+                                    <input type="text" name="middle_name" id="middle_name" class="form-control" placeholder="Enter middle name" value="{{ old('middle_name') }}">
+                                </div>
+                            </div>
+                            
                             <!-- Last Name -->
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <div class="form-group">
                                     <label for="last_name">Last Name</label>
                                     <input type="text" name="last_name" id="last_name" class="form-control" placeholder="Enter last name" value="{{ old('last_name') }}" required>
@@ -90,11 +98,11 @@
                         <div class="row clearfix">
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label><strong>Assign System Roles</strong></label>
+                                    <label><strong>Assign System Role</strong></label>
                                     <div class="mt-2">
                                         @foreach($roles as $role)
-                                            <div class="checkbox inlineblock mr-3">
-                                                <input id="role_{{ $role['id'] }}" name="role_ids[]" type="checkbox" value="{{ $role['id'] }}">
+                                            <div class="radio inlineblock mr-3">
+                                                <input id="role_{{ $role['id'] }}" name="role_ids[]" type="radio" value="{{ $role['id'] }}" {{ $loop->first ? 'checked' : '' }}>
                                                 <label for="role_{{ $role['id'] }}">{{ $role['name'] }}</label>
                                             </div>
                                         @endforeach

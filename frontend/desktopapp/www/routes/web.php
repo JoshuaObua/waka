@@ -85,6 +85,7 @@ Route::middleware('waka.auth')->group(function () {
                 [
                     'id' => '1d657a08-08e3-4eb0-8970-38ad36cf961a',
                     'first_name' => 'System',
+                    'middle_name' => 'Platform',
                     'last_name' => 'Administrator',
                     'email' => 'admin@acme.com',
                     'phone_number' => '+256700000000',
@@ -94,6 +95,7 @@ Route::middleware('waka.auth')->group(function () {
                 [
                     'id' => '3f657908-11e3-4eb0-9970-38ad36cf961b',
                     'first_name' => 'Jane',
+                    'middle_name' => 'Babirye',
                     'last_name' => 'Mugisha',
                     'email' => 'tenant@gmail.com',
                     'phone_number' => '+256701234567',
@@ -142,6 +144,7 @@ Route::middleware('waka.auth')->group(function () {
         $input = [
             'first_name' => request('first_name'),
             'last_name' => request('last_name'),
+            'middle_name' => request('middle_name'),
             'email' => request('email'),
             'password' => request('password'),
             'phone_number' => request('phone_number'),
@@ -199,6 +202,7 @@ Route::middleware('waka.auth')->group(function () {
                 '1d657a08-08e3-4eb0-8970-38ad36cf961a' => [
                     'id' => '1d657a08-08e3-4eb0-8970-38ad36cf961a',
                     'first_name' => 'System',
+                    'middle_name' => 'Platform',
                     'last_name' => 'Administrator',
                     'email' => 'admin@acme.com',
                     'phone_number' => '+256700000000',
@@ -208,6 +212,7 @@ Route::middleware('waka.auth')->group(function () {
                 '3f657908-11e3-4eb0-9970-38ad36cf961b' => [
                     'id' => '3f657908-11e3-4eb0-9970-38ad36cf961b',
                     'first_name' => 'Jane',
+                    'middle_name' => 'Babirye',
                     'last_name' => 'Mugisha',
                     'email' => 'tenant@gmail.com',
                     'phone_number' => '+256701234567',

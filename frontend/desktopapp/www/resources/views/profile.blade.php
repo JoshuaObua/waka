@@ -46,7 +46,7 @@
             <div class="card mcard_3">
                 <div class="body text-center">
                     <a href="javascript:void(0);"><img src="{{ asset('assets/images/profile_av.jpg') }}" class="rounded-circle shadow mb-3" alt="profile-image" width="120"></a>
-                    <h4>{{ $user['first_name'] ?? '' }} {{ $user['last_name'] ?? '' }}</h4>                            
+                    <h4>{{ $user['first_name'] ?? '' }} {{ $user['middle_name'] ?? '' }} {{ $user['last_name'] ?? '' }}</h4>                            
                     <p class="text-muted mb-2">{{ implode(', ', array_column($user['roles'] ?? [], 'name')) }}</p>
                     
                     @if(($user['status'] ?? '') === 'active')
@@ -99,6 +99,10 @@
                                         <tr>
                                             <td><strong>First Name</strong></td>
                                             <td>{{ $user['first_name'] ?? '' }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Middle Name</strong></td>
+                                            <td>{{ $user['middle_name'] ?? 'N/A' }}</td>
                                         </tr>
                                         <tr>
                                             <td><strong>Last Name</strong></td>
