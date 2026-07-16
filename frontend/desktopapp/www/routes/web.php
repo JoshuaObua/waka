@@ -1418,12 +1418,12 @@ Route::middleware('waka.auth')->group(function () {
             $workOrders = [
                 [
                     'id' => '33333333-4444-5555-6666-777777777777',
+                    'request_id' => '11111111-2222-3333-4444-555555555555',
+                    'vendor_id' => '22222222-3333-4444-5555-666666666666',
                     'estimated_cost' => 150000.00,
                     'status' => 'scheduled',
                     'scheduled_date' => '2026-07-18T10:00:00Z',
-                    'sla_completion_time' => '2026-07-19T18:00:00Z',
-                    'vendor' => ['business_name' => 'Kampala Plumbing Masters Ltd'],
-                    'request' => ['description' => 'Water leakage from the main ceiling pipe in the kitchen area.']
+                    'sla_completion_time' => '2026-07-19T18:00:00Z'
                 ]
             ];
             $requests = [
@@ -1432,6 +1432,30 @@ Route::middleware('waka.auth')->group(function () {
             $vendors = [
                 ['id' => '22222222-3333-4444-5555-666666666666', 'business_name' => 'Kampala Plumbing Masters Ltd']
             ];
+        }
+
+        // Build key-value maps for quick lookup in O(N) instead of nested loops
+        $vendorMap = [];
+        foreach ($vendors as $v) {
+            if (isset($v['id'])) {
+                $vendorMap[$v['id']] = $v['business_name'] ?? 'Vendor';
+            }
+        }
+
+        $requestMap = [];
+        foreach ($requests as $r) {
+            if (isset($r['id'])) {
+                $requestMap[$r['id']] = $r['description'] ?? 'Issue';
+            }
+        }
+
+        // Bind descriptions to work orders objects
+        foreach ($workOrders as &$wo) {
+            $vid = $wo['vendor_id'] ?? null;
+            $rid = $wo['request_id'] ?? null;
+            
+            $wo['vendor_name'] = $vendorMap[$vid] ?? ($wo['vendor']['business_name'] ?? 'Unassigned');
+            $wo['request_desc'] = $requestMap[$rid] ?? ($wo['request']['description'] ?? 'General repair order');
         }
 
         return view('work_orders', [

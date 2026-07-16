@@ -129,8 +129,8 @@
                             <tbody>
                                 @foreach($workOrders as $wo)
                                     <tr>
-                                        <td>{{ $wo['request']['description'] ?? 'General repair order' }}</td>
-                                        <td class="font-weight-bold">{{ $wo['vendor']['business_name'] ?? 'Unassigned' }}</td>
+                                        <td>{{ $wo['request_desc'] ?? 'General repair order' }}</td>
+                                        <td class="font-weight-bold">{{ $wo['vendor_name'] ?? 'Unassigned' }}</td>
                                         <td class="text-right text-dark font-weight-bold">{{ number_format($wo['estimated_cost']) }}</td>
                                         <td>{{ date('Y-m-d', strtotime($wo['scheduled_date'] ?? 'now')) }}</td>
                                         <td>{{ date('Y-m-d', strtotime($wo['sla_completion_time'] ?? '+3 days')) }}</td>
