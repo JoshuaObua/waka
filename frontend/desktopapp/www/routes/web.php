@@ -106,6 +106,65 @@ Route::middleware('waka.auth')->group(function () {
         return view('properties');
     });
 
+    // Tenants List (filtered users)
+    Route::get('/tenants', function () {
+        $token = session('auth_token');
+        $users = [];
+
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(5)
+                    ->withToken($token)
+                    ->get('http://localhost:8080/api/v1/users');
+
+                if ($response->successful()) {
+                    $users = $response->json();
+                }
+            } catch (\Exception $e) {
+                // fall back
+            }
+        }
+
+        // Mock fallback if empty or offline
+        if (empty($users)) {
+            $users = [
+                [
+                    'id' => '1d657a08-08e3-4eb0-8970-38ad36cf961a',
+                    'first_name' => 'System',
+                    'middle_name' => 'Platform',
+                    'last_name' => 'Administrator',
+                    'email' => 'admin@acme.com',
+                    'phone_number' => '+256700000000',
+                    'status' => 'active',
+                    'roles' => [['name' => 'Super Admin']]
+                ],
+                [
+                    'id' => '3f657908-11e3-4eb0-9970-38ad36cf961b',
+                    'first_name' => 'Jane',
+                    'middle_name' => 'Babirye',
+                    'last_name' => 'Mugisha',
+                    'email' => 'tenant@gmail.com',
+                    'phone_number' => '+256701234567',
+                    'status' => 'active',
+                    'roles' => [['name' => 'Tenant']]
+                ]
+            ];
+        }
+
+        // Filter for only Tenant roles
+        $tenants = array_filter($users, function ($u) {
+            $roles = $u['roles'] ?? [];
+            foreach ($roles as $r) {
+                if (strtolower($r['name']) === 'tenant') {
+                    return true;
+                }
+            }
+            return false;
+        });
+
+        return view('tenants', ['users' => array_values($tenants)]);
+    })->name('tenants');
+
     // User Management list
     Route::get('/users', function () {
         $token = session('auth_token');
