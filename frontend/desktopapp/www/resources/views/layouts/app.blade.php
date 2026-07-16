@@ -100,6 +100,15 @@
                     </ul>
                 </li>
                 
+                <li class="{{ Request::is('maintenance-requests') || Request::is('vendors') || Request::is('work-orders') ? 'active open' : '' }}">
+                    <a href="javascript:void(0);" class="menu-toggle"><i class="zmdi zmdi-wrench"></i><span>Maintenance & Vendors</span></a>
+                    <ul class="ml-menu">
+                        <li class="{{ Request::is('maintenance-requests') ? 'active' : '' }}"><a href="/maintenance-requests">Maintenance Requests</a></li>
+                        <li class="{{ Request::is('work-orders') ? 'active' : '' }}"><a href="/work-orders">Work Orders</a></li>
+                        <li class="{{ Request::is('vendors') ? 'active' : '' }}"><a href="/vendors">Vendors Directory</a></li>
+                    </ul>
+                </li>
+                
                 <li class="{{ Request::is('users') || Request::is('roles') ? 'active open' : '' }}">
                     <a href="javascript:void(0);" class="menu-toggle"><i class="zmdi zmdi-settings"></i><span>User Management</span></a>
                     <ul class="ml-menu">

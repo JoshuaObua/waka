@@ -1228,4 +1228,254 @@ Route::middleware('waka.auth')->group(function () {
 
         return redirect()->back()->with('success', 'Payment collections initiated successfully (Offline Mock Success).');
     });
+
+    // Maintenance Requests
+    Route::get('/maintenance-requests', function () {
+        $token = session('auth_token');
+        $requests = [];
+        $units = [];
+        $tenants = [];
+
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(5)->withToken($token)->get('http://localhost:8080/api/v1/maintenance/requests');
+                if ($response->successful()) {
+                    $requests = $response->json();
+                }
+                
+                $unitsResponse = Http::timeout(5)->withToken($token)->get('http://localhost:8080/api/v1/units');
+                if ($unitsResponse->successful()) {
+                    $units = $unitsResponse->json();
+                }
+
+                $tenantsResponse = Http::timeout(5)->withToken($token)->get('http://localhost:8080/api/v1/tenants');
+                if ($tenantsResponse->successful()) {
+                    $tenants = $tenantsResponse->json();
+                }
+            } catch (\Exception $e) {
+                // fallback
+            }
+        }
+
+        // Mock fallback if empty
+        if (empty($requests)) {
+            $requests = [
+                [
+                    'id' => '11111111-2222-3333-4444-555555555555',
+                    'category' => 'Plumbing',
+                    'description' => 'Water leakage from the main ceiling pipe in the kitchen area.',
+                    'priority' => 'high',
+                    'status' => 'pending',
+                    'created_at' => '2026-07-16T15:30:00Z',
+                    'unit' => ['unit_number' => 'Suite 101'],
+                    'tenant_profile' => ['user' => ['first_name' => 'Jane', 'last_name' => 'Mugisha']]
+                ]
+            ];
+            $units = [
+                ['id' => '1a111111-1111-1111-1111-111111111111', 'unit_number' => 'Suite 101', 'property_name' => 'Acme Plaza']
+            ];
+            $tenants = [
+                ['id' => '9a111111-1111-1111-1111-111111111111', 'user' => ['first_name' => 'Jane', 'last_name' => 'Mugisha']]
+            ];
+        }
+
+        return view('maintenance_requests', [
+            'requests' => $requests,
+            'units' => $units,
+            'tenants' => $tenants
+        ]);
+    });
+
+    Route::post('/maintenance-requests', function () {
+        $token = session('auth_token');
+        $unitId = request('unit_id');
+        $tenantProfileId = request('tenant_profile_id');
+        $category = request('category');
+        $description = request('description');
+        $priority = request('priority');
+
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(5)
+                    ->withToken($token)
+                    ->post('http://localhost:8080/api/v1/maintenance/requests', [
+                        'unit_id' => $unitId,
+                        'tenant_profile_id' => $tenantProfileId,
+                        'category' => $category,
+                        'description' => $description,
+                        'priority' => $priority
+                    ]);
+
+                if ($response->successful()) {
+                    return redirect()->back()->with('success', 'Maintenance request logged successfully.');
+                }
+
+                $body = $response->json();
+                return redirect()->back()->withErrors(['error' => $body['error'] ?? 'Failed to log maintenance request.']);
+            } catch (\Exception $e) {
+                return redirect()->back()->withErrors(['error' => 'Backend is offline.']);
+            }
+        }
+
+        return redirect()->back()->with('success', 'Maintenance request logged successfully (Offline Mock Success).');
+    });
+
+    // Vendors Directory
+    Route::get('/vendors', function () {
+        $token = session('auth_token');
+        $vendors = [];
+
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(5)->withToken($token)->get('http://localhost:8080/api/v1/maintenance/vendors');
+                if ($response->successful()) {
+                    $vendors = $response->json();
+                }
+            } catch (\Exception $e) {
+                // fallback
+            }
+        }
+
+        if (empty($vendors)) {
+            $vendors = [
+                [
+                    'id' => '22222222-3333-4444-5555-666666666666',
+                    'business_name' => 'Kampala Plumbing Masters Ltd',
+                    'contact_name' => 'Andrew Mukasa',
+                    'phone' => '+256772112233',
+                    'email' => 'contact@kplumbing.com',
+                    'category' => 'Plumbing'
+                ]
+            ];
+        }
+
+        return view('vendors', ['vendors' => $vendors]);
+    });
+
+    Route::post('/vendors', function () {
+        $token = session('auth_token');
+        $businessName = request('business_name');
+        $contactName = request('contact_name');
+        $phone = request('phone');
+        $email = request('email');
+        $category = request('category');
+
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(5)
+                    ->withToken($token)
+                    ->post('http://localhost:8080/api/v1/maintenance/vendors', [
+                        'business_name' => $businessName,
+                        'contact_name' => $contactName,
+                        'phone' => $phone,
+                        'email' => $email,
+                        'category' => $category
+                    ]);
+
+                if ($response->successful()) {
+                    return redirect()->back()->with('success', 'Vendor onboarded successfully.');
+                }
+
+                $body = $response->json();
+                return redirect()->back()->withErrors(['error' => $body['error'] ?? 'Failed to onboard vendor.']);
+            } catch (\Exception $e) {
+                return redirect()->back()->withErrors(['error' => 'Backend is offline.']);
+            }
+        }
+
+        return redirect()->back()->with('success', 'Vendor onboarded successfully (Offline Mock Success).');
+    });
+
+    // Work Orders Management
+    Route::get('/work-orders', function () {
+        $token = session('auth_token');
+        $workOrders = [];
+        $requests = [];
+        $vendors = [];
+
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(5)->withToken($token)->get('http://localhost:8080/api/v1/maintenance/work-orders');
+                if ($response->successful()) {
+                    $workOrders = $response->json();
+                }
+
+                $requestsResponse = Http::timeout(5)->withToken($token)->get('http://localhost:8080/api/v1/maintenance/requests');
+                if ($requestsResponse->successful()) {
+                    $requests = $requestsResponse->json();
+                }
+
+                $vendorsResponse = Http::timeout(5)->withToken($token)->get('http://localhost:8080/api/v1/maintenance/vendors');
+                if ($vendorsResponse->successful()) {
+                    $vendors = $vendorsResponse->json();
+                }
+            } catch (\Exception $e) {
+                // fallback
+            }
+        }
+
+        if (empty($workOrders)) {
+            $workOrders = [
+                [
+                    'id' => '33333333-4444-5555-6666-777777777777',
+                    'estimated_cost' => 150000.00,
+                    'status' => 'scheduled',
+                    'scheduled_date' => '2026-07-18T10:00:00Z',
+                    'sla_completion_time' => '2026-07-19T18:00:00Z',
+                    'vendor' => ['business_name' => 'Kampala Plumbing Masters Ltd'],
+                    'request' => ['description' => 'Water leakage from the main ceiling pipe in the kitchen area.']
+                ]
+            ];
+            $requests = [
+                ['id' => '11111111-2222-3333-4444-555555555555', 'description' => 'Water leakage from the main ceiling pipe in the kitchen area.']
+            ];
+            $vendors = [
+                ['id' => '22222222-3333-4444-5555-666666666666', 'business_name' => 'Kampala Plumbing Masters Ltd']
+            ];
+        }
+
+        return view('work_orders', [
+            'workOrders' => $workOrders,
+            'requests' => $requests,
+            'vendors' => $vendors
+        ]);
+    });
+
+    Route::post('/work-orders', function () {
+        $token = session('auth_token');
+        $requestId = request('request_id');
+        $vendorId = request('vendor_id');
+        $cost = request('estimated_cost');
+        $scheduled = request('scheduled_date');
+        $sla = request('sla_completion_time');
+
+        // Format dates as RFC3339
+        $formattedScheduled = $scheduled ? date('Y-m-d\T00:00:00\Z', strtotime($scheduled)) : null;
+        $formattedSla = $sla ? date('Y-m-d\T00:00:00\Z', strtotime($sla)) : null;
+
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(5)
+                    ->withToken($token)
+                    ->post('http://localhost:8080/api/v1/maintenance/work-orders', [
+                        'request_id' => $requestId,
+                        'vendor_id' => $vendorId,
+                        'estimated_cost' => (float)$cost,
+                        'scheduled_date' => $formattedScheduled,
+                        'sla_completion_time' => $formattedSla
+                    ]);
+
+                if ($response->successful()) {
+                    return redirect()->back()->with('success', 'Work order scheduled successfully.');
+                }
+
+                $body = $response->json();
+                return redirect()->back()->withErrors(['error' => $body['error'] ?? 'Failed to schedule work order.']);
+            } catch (\Exception $e) {
+                return redirect()->back()->withErrors(['error' => 'Backend is offline.']);
+            }
+        }
+
+        return redirect()->back()->with('success', 'Work order scheduled successfully (Offline Mock Success).');
+    });
 });
