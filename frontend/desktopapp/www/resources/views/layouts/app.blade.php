@@ -160,5 +160,20 @@
     <!-- Page Specific Scripts -->
     @yield('scripts')
 
+    <script>
+        $(document).ready(function() {
+            // Bind navigation link clicks on sidebar to show preloader instantly
+            $('#leftsidebar a').on('click', function(e) {
+                var href = $(this).attr('href');
+                
+                // Only intercept actual links (not menu-toggles, empty links, or javascript links)
+                if (href && href !== '#' && href !== 'javascript:void(0);' && !$(this).hasClass('menu-toggle')) {
+                    // Show full-screen loader
+                    $('.page-loader-wrapper').fadeIn(150);
+                }
+            });
+        });
+    </script>
+
 </body>
 </html>
