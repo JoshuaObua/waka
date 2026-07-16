@@ -1414,6 +1414,11 @@ Route::middleware('waka.auth')->group(function () {
             }
         }
 
+        // Ensure arrays are initialized to avoid null warnings
+        $workOrders = is_array($workOrders) ? $workOrders : [];
+        $requests = is_array($requests) ? $requests : [];
+        $vendors = is_array($vendors) ? $vendors : [];
+
         if (empty($workOrders)) {
             $workOrders = [
                 [
@@ -1426,9 +1431,15 @@ Route::middleware('waka.auth')->group(function () {
                     'sla_completion_time' => '2026-07-19T18:00:00Z'
                 ]
             ];
+        }
+
+        if (empty($requests)) {
             $requests = [
                 ['id' => '11111111-2222-3333-4444-555555555555', 'description' => 'Water leakage from the main ceiling pipe in the kitchen area.']
             ];
+        }
+
+        if (empty($vendors)) {
             $vendors = [
                 ['id' => '22222222-3333-4444-5555-666666666666', 'business_name' => 'Kampala Plumbing Masters Ltd']
             ];
@@ -1454,8 +1465,8 @@ Route::middleware('waka.auth')->group(function () {
             $vid = $wo['vendor_id'] ?? null;
             $rid = $wo['request_id'] ?? null;
             
-            $wo['vendor_name'] = $vendorMap[$vid] ?? ($wo['vendor']['business_name'] ?? 'Unassigned');
-            $wo['request_desc'] = $requestMap[$rid] ?? ($wo['request']['description'] ?? 'General repair order');
+            $wo['vendor_name'] = $vendorMap[$vid] ?? (isset($wo['vendor']['business_name']) ? $wo['vendor']['business_name'] : 'Unassigned');
+            $wo['request_desc'] = $requestMap[$rid] ?? (isset($wo['request']['description']) ? $wo['request']['description'] : 'General repair order');
         }
 
         return view('work_orders', [
