@@ -1978,4 +1978,9 @@ Route::middleware('waka.auth')->group(function () {
 
         return view('documents', ['documents' => $documents]);
     });
+
+    // Event Calendar (Calendar Shortcut Target)
+    Route::get('/calendar', function () {
+        return view('calendar');
+    });
 });
