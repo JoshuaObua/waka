@@ -9,6 +9,15 @@
 @endsection
 
 @section('content')
+@php
+    $collectionsPercent = 0;
+    if ($kpis['collections']['previous'] > 0) {
+        $collectionsPercent = min(100, intval(($kpis['collections']['current'] * 100) / $kpis['collections']['previous']));
+    } else if ($kpis['collections']['current'] > 0) {
+        $collectionsPercent = 100;
+    }
+@endphp
+
 <div class="block-header">
     <div class="row">
         <div class="col-lg-7 col-md-6 col-sm-12">
@@ -26,50 +35,63 @@
 </div>
 <div class="container-fluid">
     <div class="row clearfix">
+        <!-- 1. Rentable Units occupied vs vacant -->
         <div class="col-lg-3 col-md-6 col-sm-12">
             <div class="card widget_2 big_icon traffic">
                 <div class="body">
-                    <h6>Traffic</h6>
-                    <h2>20 <small class="info">of 1Tb</small></h2>
-                    <small>2% higher than last month</small>
+                    <h6>Units Occupied</h6>
+                    <h2>{{ $kpis['units']['occupied'] }} <small class="info">of {{ $kpis['units']['total'] }}</small></h2>
+                    <small>{{ $kpis['units']['vacant'] }} vacant units remaining</small>
                     <div class="progress">
-                        <div class="progress-bar l-amber" role="progressbar" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100" style="width: 45%;"></div>
+                        <div class="progress-bar l-amber" role="progressbar" aria-valuenow="{{ $kpis['units']['percent'] }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ $kpis['units']['percent'] }}%;"></div>
                     </div>
                 </div>
             </div>
         </div>
+        
+        <!-- 2. App Users tenants vs other users -->
         <div class="col-lg-3 col-md-6 col-sm-12">
             <div class="card widget_2 big_icon sales">
                 <div class="body">
-                    <h6>Sales</h6>
-                    <h2>12% <small class="info">of 100</small></h2>
-                    <small>6% higher than last month</small>
+                    <h6>App Users</h6>
+                    <h2>{{ $kpis['users']['tenants'] }} <small class="info">tenants</small></h2>
+                    <small>{{ $kpis['users']['others'] }} staff users</small>
                     <div class="progress">
-                        <div class="progress-bar l-blue" role="progressbar" aria-valuenow="38" aria-valuemin="0" aria-valuemax="100" style="width: 38%;"></div>
+                        <div class="progress-bar l-blue" role="progressbar" aria-valuenow="{{ $kpis['users']['percent'] }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ $kpis['users']['percent'] }}%;"></div>
                     </div>
                 </div>
             </div>
         </div>
+        
+        <!-- 3. Invoices paid vs overdue -->
         <div class="col-lg-3 col-md-6 col-sm-12">
             <div class="card widget_2 big_icon email">
                 <div class="body">
-                    <h6>Email</h6>
-                    <h2>39 <small class="info">of 100</small></h2>
-                    <small>Total Registered email</small>
+                    <h6>Invoices Issued</h6>
+                    <h2>{{ $kpis['invoices']['paid'] }} <small class="info">paid</small></h2>
+                    <small>{{ $kpis['invoices']['overdue'] }} overdue invoices pending</small>
                     <div class="progress">
-                        <div class="progress-bar l-purple" role="progressbar" aria-valuenow="39" aria-valuemin="0" aria-valuemax="100" style="width: 39%;"></div>
+                        <div class="progress-bar l-purple" role="progressbar" aria-valuenow="{{ $kpis['invoices']['percent'] }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ $kpis['invoices']['percent'] }}%;"></div>
                     </div>
                 </div>
             </div>
         </div>
+        
+        <!-- 4. Total Collections current vs previous -->
         <div class="col-lg-3 col-md-6 col-sm-12">
             <div class="card widget_2 big_icon domains">
                 <div class="body">
-                    <h6>Domains</h6>
-                    <h2>8 <small class="info">of 10</small></h2>
-                    <small>Total Registered Domain</small>
+                    <h6>Total Collections</h6>
+                    <h2>{{ number_format($kpis['collections']['current']) }} <small class="info">UGX</small></h2>
+                    <small>
+                        @if($kpis['collections']['change_percent'] >= 0)
+                            <i class="zmdi zmdi-trending-up text-success"></i> {{ number_format($kpis['collections']['change_percent'], 1) }}% higher than last month
+                        @else
+                            <i class="zmdi zmdi-trending-down text-danger"></i> {{ number_format(abs($kpis['collections']['change_percent']), 1) }}% lower than last month
+                        @endif
+                    </small>
                     <div class="progress">
-                        <div class="progress-bar l-green" role="progressbar" aria-valuenow="89" aria-valuemin="0" aria-valuemax="100" style="width: 89%;"></div>
+                        <div class="progress-bar l-green" role="progressbar" aria-valuenow="{{ $collectionsPercent }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ $collectionsPercent }}%;"></div>
                     </div>
                 </div>
             </div>

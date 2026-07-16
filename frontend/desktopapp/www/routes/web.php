@@ -49,7 +49,53 @@ Route::get('/register', function () {
 // Protected Administration Routes
 Route::middleware('waka.auth')->group(function () {
     Route::get('/', function () {
-        return view('index');
+        $token = session('auth_token');
+        $kpis = [];
+
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(5)
+                    ->withToken($token)
+                    ->get('http://localhost:8080/api/v1/dashboard/kpis');
+
+                if ($response->successful()) {
+                    $kpis = $response->json();
+                }
+            } catch (\Exception $e) {
+                // let it fallback
+            }
+        }
+
+        // Mock fallback if empty or offline
+        if (empty($kpis)) {
+            $kpis = [
+                'units' => [
+                    'total' => 15,
+                    'occupied' => 12,
+                    'vacant' => 3,
+                    'percent' => 80
+                ],
+                'users' => [
+                    'total' => 32,
+                    'tenants' => 25,
+                    'others' => 7,
+                    'percent' => 78
+                ],
+                'invoices' => [
+                    'total' => 24,
+                    'paid' => 18,
+                    'overdue' => 6,
+                    'percent' => 75
+                ],
+                'collections' => [
+                    'current' => 3400000,
+                    'previous' => 2950000,
+                    'change_percent' => 15.25
+                ]
+            ];
+        }
+
+        return view('index', ['kpis' => $kpis]);
     })->name('dashboard');
 
     // Mappings for other dashboard pages to ensure post-login protection
