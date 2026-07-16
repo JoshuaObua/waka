@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html class="no-js " lang="en">
 
 
@@ -270,8 +270,8 @@
                 <div class="user-info">
                     <a class="image" href="profile.html"><img src="assets/images/profile_av.jpg" alt="User"></a>
                     <div class="detail">
-                        <h4>Michael</h4>
-                        <small>Super Admin</small>                        
+                        <h4>{{ ucfirst(explode('@', session('user_email', 'User'))[0]) }}</h4>
+                        <small>{{ implode(', ', session('user_roles', ['Guest'])) }}</small>                        
                     </div>
                 </div>
             </li>
