@@ -116,6 +116,31 @@
                         <li class="{{ Request::is('roles') ? 'active' : '' }}"><a href="/roles">Roles & Permissions</a></li>
                     </ul>
                 </li>
+
+                <li class="{{ Request::is('utility-meters') || Request::is('utility-tariffs') || Request::is('utility-bills') ? 'active open' : '' }}">
+                    <a href="javascript:void(0);" class="menu-toggle"><i class="zmdi zmdi-flash"></i><span>Utility Billing</span></a>
+                    <ul class="ml-menu">
+                        <li class="{{ Request::is('utility-meters') ? 'active' : '' }}"><a href="/utility-meters">Meter Settings</a></li>
+                        <li class="{{ Request::is('utility-tariffs') ? 'active' : '' }}"><a href="/utility-tariffs">Tariffs Directory</a></li>
+                        <li class="{{ Request::is('utility-bills') ? 'active' : '' }}"><a href="/utility-bills">Bills & Invoices</a></li>
+                    </ul>
+                </li>
+
+                <li class="{{ Request::is('visitors') ? 'active' : '' }}">
+                    <a href="/visitors"><i class="zmdi zmdi-walk"></i><span>Visitor Management</span></a>
+                </li>
+
+                <li class="{{ Request::is('webhooks') || Request::is('audit-logs') ? 'active open' : '' }}">
+                    <a href="javascript:void(0);" class="menu-toggle"><i class="zmdi zmdi-dns"></i><span>System & Integrations</span></a>
+                    <ul class="ml-menu">
+                        <li class="{{ Request::is('webhooks') ? 'active' : '' }}"><a href="/webhooks">Webhook Subscriptions</a></li>
+                        <li class="{{ Request::is('audit-logs') ? 'active' : '' }}"><a href="/audit-logs">Audit Trail Logs</a></li>
+                    </ul>
+                </li>
+
+                <li class="{{ Request::is('graphql') ? 'active' : '' }}">
+                    <a href="/graphql"><i class="zmdi zmdi-code-shortcut"></i><span>GraphQL Explorer</span></a>
+                </li>
             </ul>
         </div>
     </aside>

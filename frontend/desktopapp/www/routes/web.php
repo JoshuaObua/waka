@@ -1478,4 +1478,431 @@ Route::middleware('waka.auth')->group(function () {
 
         return redirect()->back()->with('success', 'Work order scheduled successfully (Offline Mock Success).');
     });
+
+    // Utility Billing - Meter Settings
+    Route::get('/utility-meters', function () {
+        $token = session('auth_token');
+        $meters = [];
+        $units = [];
+
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(5)->withToken($token)->get('http://localhost:8080/api/v1/utility/meters');
+                if ($response->successful()) {
+                    $meters = $response->json();
+                }
+                $unitsResponse = Http::timeout(5)->withToken($token)->get('http://localhost:8080/api/v1/units');
+                if ($unitsResponse->successful()) {
+                    $units = $unitsResponse->json();
+                }
+            } catch (\Exception $e) {
+                // fallback
+            }
+        }
+
+        if (empty($meters)) {
+            $meters = [
+                [
+                    'id' => '11111111-abcd-1111-2222-333333333333',
+                    'meter_number' => 'MTR-90081',
+                    'type' => 'electricity',
+                    'unit' => ['unit_number' => 'Suite 101'],
+                    'last_reading' => 1250.00
+                ]
+            ];
+            $units = [
+                ['id' => '1a111111-1111-1111-1111-111111111111', 'unit_number' => 'Suite 101', 'property_name' => 'Acme Plaza']
+            ];
+        }
+
+        return view('utility_meters', ['meters' => $meters, 'units' => $units]);
+    });
+
+    Route::post('/utility-meters', function () {
+        $token = session('auth_token');
+        $unitId = request('unit_id');
+        $meterNumber = request('meter_number');
+        $type = request('type');
+        $lastReading = request('last_reading') ?? 0;
+
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(5)->withToken($token)->post('http://localhost:8080/api/v1/utility/meters', [
+                    'unit_id' => $unitId,
+                    'meter_number' => $meterNumber,
+                    'type' => $type,
+                    'last_reading' => (float)$lastReading
+                ]);
+                if ($response->successful()) {
+                    return redirect()->back()->with('success', 'Utility meter registered successfully.');
+                }
+                $body = $response->json();
+                return redirect()->back()->withErrors(['error' => $body['error'] ?? 'Failed to register meter.']);
+            } catch (\Exception $e) {
+                return redirect()->back()->withErrors(['error' => 'Backend is offline.']);
+            }
+        }
+        return redirect()->back()->with('success', 'Utility meter registered successfully (Offline Mock Success).');
+    });
+
+    // Utility Billing - Tariffs Directory
+    Route::get('/utility-tariffs', function () {
+        $token = session('auth_token');
+        $tariffs = [];
+
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(5)->withToken($token)->get('http://localhost:8080/api/v1/utility/tariffs');
+                if ($response->successful()) {
+                    $tariffs = $response->json();
+                }
+            } catch (\Exception $e) {
+                // fallback
+            }
+        }
+
+        if (empty($tariffs)) {
+            $tariffs = [
+                [
+                    'id' => '22222222-abcd-1111-2222-333333333333',
+                    'name' => 'Umeme Standard Commercial',
+                    'type' => 'electricity',
+                    'rate_per_unit' => 750.00
+                ]
+            ];
+        }
+
+        return view('utility_tariffs', ['tariffs' => $tariffs]);
+    });
+
+    Route::post('/utility-tariffs', function () {
+        $token = session('auth_token');
+        $name = request('name');
+        $type = request('type');
+        $rate = request('rate_per_unit');
+
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(5)->withToken($token)->post('http://localhost:8080/api/v1/utility/tariffs', [
+                    'name' => $name,
+                    'type' => $type,
+                    'rate_per_unit' => (float)$rate
+                ]);
+                if ($response->successful()) {
+                    return redirect()->back()->with('success', 'Tariff created successfully.');
+                }
+                $body = $response->json();
+                return redirect()->back()->withErrors(['error' => $body['error'] ?? 'Failed to create tariff.']);
+            } catch (\Exception $e) {
+                return redirect()->back()->withErrors(['error' => 'Backend is offline.']);
+            }
+        }
+        return redirect()->back()->with('success', 'Tariff created successfully (Offline Mock Success).');
+    });
+
+    // Utility Billing - Bills & Invoices
+    Route::get('/utility-bills', function () {
+        $token = session('auth_token');
+        $bills = [];
+        $meters = [];
+        $tariffs = [];
+
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(5)->withToken($token)->get('http://localhost:8080/api/v1/utility/bills');
+                if ($response->successful()) {
+                    $bills = $response->json();
+                }
+                $metersResponse = Http::timeout(5)->withToken($token)->get('http://localhost:8080/api/v1/utility/meters');
+                if ($metersResponse->successful()) {
+                    $meters = $metersResponse->json();
+                }
+                $tariffsResponse = Http::timeout(5)->withToken($token)->get('http://localhost:8080/api/v1/utility/tariffs');
+                if ($tariffsResponse->successful()) {
+                    $tariffs = $tariffsResponse->json();
+                }
+            } catch (\Exception $e) {
+                // fallback
+            }
+        }
+
+        if (empty($bills)) {
+            $bills = [
+                [
+                    'id' => '33333333-abcd-1111-2222-333333333333',
+                    'previous_reading' => 1250.00,
+                    'current_reading' => 1400.00,
+                    'units_consumed' => 150.00,
+                    'total_amount' => 112500.00,
+                    'status' => 'unpaid',
+                    'due_date' => '2026-07-31',
+                    'meter' => ['meter_number' => 'MTR-90081', 'type' => 'electricity'],
+                    'tariff' => ['name' => 'Umeme Standard Commercial']
+                ]
+            ];
+            $meters = [
+                ['id' => '11111111-abcd-1111-2222-333333333333', 'meter_number' => 'MTR-90081', 'type' => 'electricity']
+            ];
+            $tariffs = [
+                ['id' => '22222222-abcd-1111-2222-333333333333', 'name' => 'Umeme Standard Commercial', 'type' => 'electricity', 'rate_per_unit' => 750.00]
+            ];
+        }
+
+        return view('utility_bills', [
+            'bills' => $bills,
+            'meters' => $meters,
+            'tariffs' => $tariffs
+        ]);
+    });
+
+    Route::post('/utility-bills', function () {
+        $token = session('auth_token');
+        $meterId = request('meter_id');
+        $tariffId = request('tariff_id');
+        $currentReading = request('current_reading');
+        $dueDate = request('due_date');
+
+        $formattedDue = date('Y-m-d\T00:00:00\Z', strtotime($dueDate));
+
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(5)->withToken($token)->post('http://localhost:8080/api/v1/utility/bills', [
+                    'meter_id' => $meterId,
+                    'tariff_id' => $tariffId,
+                    'current_reading' => (float)$currentReading,
+                    'due_date' => $formattedDue
+                ]);
+                if ($response->successful()) {
+                    return redirect()->back()->with('success', 'Utility bill created successfully.');
+                }
+                $body = $response->json();
+                return redirect()->back()->withErrors(['error' => $body['error'] ?? 'Failed to create utility bill.']);
+            } catch (\Exception $e) {
+                return redirect()->back()->withErrors(['error' => 'Backend is offline.']);
+            }
+        }
+        return redirect()->back()->with('success', 'Utility bill created successfully (Offline Mock Success).');
+    });
+
+    // Visitor Management
+    Route::get('/visitors', function () {
+        $token = session('auth_token');
+        $visitors = [];
+
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(5)->withToken($token)->get('http://localhost:8080/api/v1/visitors');
+                if ($response->successful()) {
+                    $visitors = $response->json();
+                }
+            } catch (\Exception $e) {
+                // fallback
+            }
+        }
+
+        if (empty($visitors)) {
+            $visitors = [
+                [
+                    'id' => '44444444-abcd-1111-2222-333333333333',
+                    'full_name' => 'John Doe',
+                    'phone' => '+256701122334',
+                    'email' => 'john.doe@gmail.com',
+                    'purpose' => 'Delivery',
+                    'host_name' => 'Jane Mugisha',
+                    'check_in_time' => null,
+                    'check_out_time' => null
+                ]
+            ];
+        }
+
+        return view('visitors', ['visitors' => $visitors]);
+    });
+
+    Route::post('/visitors', function () {
+        $token = session('auth_token');
+        $fullName = request('full_name');
+        $phone = request('phone');
+        $email = request('email');
+        $purpose = request('purpose');
+        $hostName = request('host_name');
+
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(5)->withToken($token)->post('http://localhost:8080/api/v1/visitors', [
+                    'full_name' => $fullName,
+                    'phone' => $phone,
+                    'email' => $email,
+                    'purpose' => $purpose,
+                    'host_name' => $hostName
+                ]);
+                if ($response->successful()) {
+                    return redirect()->back()->with('success', 'Visitor registered successfully.');
+                }
+                $body = $response->json();
+                return redirect()->back()->withErrors(['error' => $body['error'] ?? 'Failed to register visitor.']);
+            } catch (\Exception $e) {
+                return redirect()->back()->withErrors(['error' => 'Backend is offline.']);
+            }
+        }
+        return redirect()->back()->with('success', 'Visitor registered successfully (Offline Mock Success).');
+    });
+
+    Route::post('/visitors/{id}/check-in', function ($id) {
+        $token = session('auth_token');
+
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(5)->withToken($token)->put("http://localhost:8080/api/v1/visitors/{$id}/check-in", [
+                    'status' => 'checked_in'
+                ]);
+                if ($response->successful()) {
+                    return redirect()->back()->with('success', 'Visitor checked in successfully.');
+                }
+                $body = $response->json();
+                return redirect()->back()->withErrors(['error' => $body['error'] ?? 'Failed to check in visitor.']);
+            } catch (\Exception $e) {
+                return redirect()->back()->withErrors(['error' => 'Backend is offline.']);
+            }
+        }
+        return redirect()->back()->with('success', 'Visitor checked in (Offline Mock Success).');
+    });
+
+    Route::post('/visitors/{id}/check-out', function ($id) {
+        $token = session('auth_token');
+
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(5)->withToken($token)->put("http://localhost:8080/api/v1/visitors/{$id}/check-out", [
+                    'status' => 'checked_out'
+                ]);
+                if ($response->successful()) {
+                    return redirect()->back()->with('success', 'Visitor checked out successfully.');
+                }
+                $body = $response->json();
+                return redirect()->back()->withErrors(['error' => $body['error'] ?? 'Failed to check out visitor.']);
+            } catch (\Exception $e) {
+                return redirect()->back()->withErrors(['error' => 'Backend is offline.']);
+            }
+        }
+        return redirect()->back()->with('success', 'Visitor checked out (Offline Mock Success).');
+    });
+
+    // Webhooks & Integrations
+    Route::get('/webhooks', function () {
+        $token = session('auth_token');
+        $subscriptions = [];
+
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(5)->withToken($token)->get('http://localhost:8080/api/v1/webhooks/subscriptions');
+                if ($response->successful()) {
+                    $subscriptions = $response->json();
+                }
+            } catch (\Exception $e) {
+                // fallback
+            }
+        }
+
+        if (empty($subscriptions)) {
+            $subscriptions = [
+                [
+                    'id' => '55555555-abcd-1111-2222-333333333333',
+                    'target_url' => 'https://api.acmesystem.com/webhooks/listener',
+                    'event_type' => 'invoice.paid'
+                ]
+            ];
+        }
+
+        return view('webhooks', ['subscriptions' => $subscriptions]);
+    });
+
+    Route::post('/webhooks', function () {
+        $token = session('auth_token');
+        $url = request('target_url');
+        $event = request('event_type');
+
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(5)->withToken($token)->post('http://localhost:8080/api/v1/webhooks/subscriptions', [
+                    'target_url' => $url,
+                    'event_type' => $event
+                ]);
+                if ($response->successful()) {
+                    return redirect()->back()->with('success', 'Webhook subscription saved.');
+                }
+                $body = $response->json();
+                return redirect()->back()->withErrors(['error' => $body['error'] ?? 'Failed to subscribe.']);
+            } catch (\Exception $e) {
+                return redirect()->back()->withErrors(['error' => 'Backend is offline.']);
+            }
+        }
+        return redirect()->back()->with('success', 'Webhook subscription saved (Offline Mock Success).');
+    });
+
+    // Audit Logs
+    Route::get('/audit-logs', function () {
+        $token = session('auth_token');
+        $logs = [];
+
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(5)->withToken($token)->get('http://localhost:8080/api/v1/audit-logs');
+                if ($response->successful()) {
+                    $logs = $response->json();
+                }
+            } catch (\Exception $e) {
+                // fallback
+            }
+        }
+
+        if (empty($logs)) {
+            $logs = [
+                [
+                    'id' => '66666666-abcd-1111-2222-333333333333',
+                    'actor_email' => 'admin@acme.com',
+                    'action' => 'user.login',
+                    'ip_address' => '127.0.0.1',
+                    'timestamp' => '2026-07-16T22:00:00Z',
+                    'status' => 'success'
+                ]
+            ];
+        }
+
+        return view('audit_logs', ['logs' => $logs]);
+    });
+
+    // GraphQL Explorer
+    Route::get('/graphql', function () {
+        return view('graphql', ['result' => null, 'query' => '']);
+    });
+
+    Route::post('/graphql/query', function () {
+        $token = session('auth_token');
+        $query = request('query');
+        $result = null;
+
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(10)->withToken($token)->post('http://localhost:8080/api/v1/graphql', [
+                    'query' => $query
+                ]);
+                $result = $response->body();
+            } catch (\Exception $e) {
+                $result = json_encode(['errors' => [['message' => 'GraphQL service is offline.']]]);
+            }
+        } else {
+            // Mock GraphQL response
+            $result = json_encode([
+                'data' => [
+                    'tenant' => [
+                        'name' => 'Acme Plaza Tenant Properties',
+                        'propertiesCount' => 1,
+                        'totalRentDue' => 1200000.00
+                    ]
+                ]
+            ]);
+        }
+
+        return view('graphql', ['result' => $result, 'query' => $query]);
+    });
 });
