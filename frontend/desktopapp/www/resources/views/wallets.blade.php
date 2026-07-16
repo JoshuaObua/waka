@@ -9,6 +9,8 @@
     <link rel="stylesheet" href="{{ asset('assets/plugins/jquery-datatable/fixedeader/dataTables.fixedheader.bootstrap4.min.css') }}">
     <!-- Sweetalert Css -->
     <link rel="stylesheet" href="{{ asset('assets/plugins/sweetalert/sweetalert.css') }}">
+    <!-- Bootstrap Select Css -->
+    <link rel="stylesheet" href="{{ asset('assets/plugins/bootstrap-select/css/bootstrap-select.css') }}">
     <style>
         .badge-deposit {
             background-color: #28a745;
@@ -124,7 +126,7 @@
                         @csrf
                         <div class="form-group">
                             <label for="profile_id">Select Tenant <span class="text-danger">*</span></label>
-                            <select id="profile_id" name="profile_id" class="form-control" required>
+                            <select id="profile_id" name="profile_id" class="form-control show-tick" required>
                                 <option value="" disabled selected>-- Choose Tenant Profile --</option>
                                 @foreach($tenantsList as $t)
                                     <option value="{{ $t['id'] }}">
@@ -244,6 +246,8 @@
     <script src="{{ asset('assets/plugins/jquery-datatable/buttons/buttons.print.min.js') }}"></script>
     <!-- Sweetalert Plugin Js -->
     <script src="{{ asset('assets/plugins/sweetalert/sweetalert.min.js') }}"></script>
+    <!-- Bootstrap Select Plugin Js -->
+    <script src="{{ asset('assets/plugins/bootstrap-select/js/bootstrap-select.js') }}"></script>
     <script>
         $(document).ready(function() {
             // Initialize DataTable with Export Capabilities
@@ -255,6 +259,11 @@
                 order: [[0, "desc"]],
                 pageLength: 10
             });
+
+            // Initialize Bootstrap Selectpicker
+            if ($.fn.selectpicker) {
+                $('#profile_id').selectpicker();
+            }
 
             // Prevent double-clicking and convert button into circular loading spinner
             $('form').on('submit', function() {
