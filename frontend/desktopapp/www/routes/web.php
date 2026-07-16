@@ -677,4 +677,149 @@ Route::middleware('waka.auth')->group(function () {
 
         return redirect()->back()->with('success', 'Transaction status synced successfully (Offline Mock Sync: COMPLETED).');
     });
+
+    // Invoices Management
+    Route::get('/invoices', function () {
+        $token = session('auth_token');
+        $invoices = [];
+
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(5)->withToken($token)->get('http://localhost:8080/api/v1/invoices');
+                if ($response->successful()) {
+                    $invoices = $response->json();
+                }
+            } catch (\Exception $e) {
+                // fall back to offline mode
+            }
+        }
+
+        // Offline mock fallback if empty
+        if (empty($invoices)) {
+            $invoices = [
+                [
+                    'id' => '11111111-1111-1111-1111-111111111111',
+                    'invoice_number' => 'INV-10029',
+                    'lease' => [
+                        'unit' => ['unit_number' => 'Suite 101'],
+                        'tenant_profile' => ['user' => ['first_name' => 'Jane', 'last_name' => 'Mugisha']]
+                    ],
+                    'issue_date' => '2026-06-01',
+                    'due_date' => '2026-06-15',
+                    'total_amount' => 1200000.00,
+                    'paid_amount' => 1200000.00,
+                    'status' => 'paid'
+                ],
+                [
+                    'id' => '22222222-2222-2222-2222-222222222222',
+                    'invoice_number' => 'INV-10030',
+                    'lease' => [
+                        'unit' => ['unit_number' => 'Suite 101'],
+                        'tenant_profile' => ['user' => ['first_name' => 'Jane', 'last_name' => 'Mugisha']]
+                    ],
+                    'issue_date' => '2026-07-01',
+                    'due_date' => '2026-07-15',
+                    'total_amount' => 1200000.00,
+                    'paid_amount' => 0.00,
+                    'status' => 'overdue'
+                ]
+            ];
+        }
+
+        return view('invoices', ['invoices' => $invoices]);
+    })->name('invoices');
+
+    Route::get('/invoices/create', function () {
+        $token = session('auth_token');
+        $leases = [];
+
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(5)->withToken($token)->get('http://localhost:8080/api/v1/leases');
+                if ($response->successful()) {
+                    $leases = $response->json();
+                }
+            } catch (\Exception $e) {
+                // fallback
+            }
+        }
+
+        // Mock fallback if empty
+        if (empty($leases)) {
+            $leases = [
+                [
+                    'id' => '1a111111-1111-1111-1111-111111111111',
+                    'unit' => ['unit_number' => 'Suite 101'],
+                    'tenant_profile' => [
+                        'user' => ['first_name' => 'Jane', 'last_name' => 'Mugisha']
+                    ],
+                    'rent_amount' => 1200000.00
+                ]
+            ];
+        }
+
+        return view('invoices_create', ['leases' => $leases]);
+    });
+
+    Route::post('/invoices', function () {
+        $token = session('auth_token');
+        $leaseId = request('lease_id');
+        $issueDate = request('issue_date');
+        $dueDate = request('due_date');
+        $totalAmount = request('total_amount');
+
+        // GORM expects RFC3339 formatted timestamps
+        $formattedIssue = date('Y-m-d\T00:00:00\Z', strtotime($issueDate));
+        $formattedDue = date('Y-m-d\T00:00:00\Z', strtotime($dueDate));
+
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(5)
+                    ->withToken($token)
+                    ->post('http://localhost:8080/api/v1/invoices', [
+                        'lease_id' => $leaseId,
+                        'issue_date' => $formattedIssue,
+                        'due_date' => $formattedDue,
+                        'total_amount' => (float)$totalAmount
+                    ]);
+
+                if ($response->successful()) {
+                    return redirect()->route('invoices')->with('success', 'Invoice created successfully.');
+                }
+
+                $body = $response->json();
+                return redirect()->back()->withErrors(['error' => $body['error'] ?? 'Failed to create invoice.']);
+            } catch (\Exception $e) {
+                return redirect()->back()->withErrors(['error' => 'Backend is offline.']);
+            }
+        }
+
+        return redirect()->route('invoices')->with('success', 'Invoice created successfully (Offline Mock Success).');
+    });
+
+    Route::post('/invoices/{id}/pay', function ($id) {
+        $token = session('auth_token');
+        $phone = request('phone');
+
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(10)
+                    ->withToken($token)
+                    ->post("http://localhost:8080/api/v1/payments/invoices/{$id}/pay-gateway", [
+                        'phone' => $phone
+                    ]);
+
+                if ($response->successful()) {
+                    return redirect()->back()->with('success', 'Payment collections initiated successfully. Balance updates on validation.');
+                }
+
+                $body = $response->json();
+                return redirect()->back()->withErrors(['error' => $body['error'] ?? 'Failed to initiate payment.']);
+            } catch (\Exception $e) {
+                return redirect()->back()->withErrors(['error' => 'Backend is offline.']);
+            }
+        }
+
+        return redirect()->back()->with('success', 'Payment collections initiated successfully (Offline Mock Success).');
+    });
 });
