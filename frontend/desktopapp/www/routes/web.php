@@ -1940,4 +1940,42 @@ Route::middleware('waka.auth')->group(function () {
 
         return view('graphql', ['result' => $result, 'query' => $query]);
     });
+
+    // File Manager (Google Drive Shortcut Target)
+    Route::get('/documents', function () {
+        $token = session('auth_token');
+        $documents = [];
+
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(5)->withToken($token)->get('http://localhost:8080/api/v1/documents');
+                if ($response->successful()) {
+                    $documents = $response->json();
+                }
+            } catch (\Exception $e) {
+                // fallback
+            }
+        }
+
+        if (empty($documents)) {
+            $documents = [
+                [
+                    'id' => '11111111-abcd-1111-2222-333333333333',
+                    'name' => 'Lease_Agreement_Suite101.pdf',
+                    'file_type' => 'pdf',
+                    'file_size' => 1254000,
+                    'created_at' => '2026-07-16T12:00:00Z'
+                ],
+                [
+                    'id' => '22222222-abcd-1111-2222-333333333333',
+                    'name' => 'Renovation_Cost_Estimate.xlsx',
+                    'file_type' => 'excel',
+                    'file_size' => 450000,
+                    'created_at' => '2026-07-16T14:30:00Z'
+                ]
+            ];
+        }
+
+        return view('documents', ['documents' => $documents]);
+    });
 });
