@@ -6,6 +6,24 @@
     <link rel="stylesheet" href="{{ asset('assets/plugins/jvectormap/jquery-jvectormap-2.0.3.min.css') }}"/>
     <link rel="stylesheet" href="{{ asset('assets/plugins/charts-c3/plugin.css') }}"/>
     <link rel="stylesheet" href="{{ asset('assets/plugins/morrisjs/morris.min.css') }}" />
+    <style>
+        .widget_2.big_icon.units::after {
+            content: '\f1a3' !important; /* city / property */
+            font-family: 'Material-Design-Iconic-Font' !important;
+        }
+        .widget_2.big_icon.users::after {
+            content: '\f207' !important; /* accounts / users */
+            font-family: 'Material-Design-Iconic-Font' !important;
+        }
+        .widget_2.big_icon.invoices::after {
+            content: '\f224' !important; /* file-text / invoices */
+            font-family: 'Material-Design-Iconic-Font' !important;
+        }
+        .widget_2.big_icon.collections::after {
+            content: '\f19a' !important; /* balance-wallet / collections */
+            font-family: 'Material-Design-Iconic-Font' !important;
+        }
+    </style>
 @endsection
 
 @section('content')
@@ -37,7 +55,7 @@
     <div class="row clearfix">
         <!-- 1. Rentable Units occupied vs vacant -->
         <div class="col-lg-3 col-md-6 col-sm-12">
-            <div class="card widget_2 big_icon traffic">
+            <div class="card widget_2 big_icon units">
                 <div class="body">
                     <h6>Units Occupied</h6>
                     <h2>{{ $kpis['units']['occupied'] }} <small class="info">of {{ $kpis['units']['total'] }}</small></h2>
@@ -51,7 +69,7 @@
         
         <!-- 2. App Users tenants vs other users -->
         <div class="col-lg-3 col-md-6 col-sm-12">
-            <div class="card widget_2 big_icon sales">
+            <div class="card widget_2 big_icon users">
                 <div class="body">
                     <h6>App Users</h6>
                     <h2>{{ $kpis['users']['tenants'] }} <small class="info">tenants</small></h2>
@@ -65,7 +83,7 @@
         
         <!-- 3. Invoices paid vs overdue -->
         <div class="col-lg-3 col-md-6 col-sm-12">
-            <div class="card widget_2 big_icon email">
+            <div class="card widget_2 big_icon invoices">
                 <div class="body">
                     <h6>Invoices Issued</h6>
                     <h2>{{ $kpis['invoices']['paid'] }} <small class="info">paid</small></h2>
@@ -79,7 +97,7 @@
         
         <!-- 4. Total Collections current vs previous -->
         <div class="col-lg-3 col-md-6 col-sm-12">
-            <div class="card widget_2 big_icon domains">
+            <div class="card widget_2 big_icon collections">
                 <div class="body">
                     <h6>Total Collections</h6>
                     <h2>{{ number_format($kpis['collections']['current']) }} <small class="info">UGX</small></h2>
