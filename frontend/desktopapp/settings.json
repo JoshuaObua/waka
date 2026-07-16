@@ -1,4 +1,12 @@
 {
+    "company_details": {
+        "name": "Waka Platform Systems Ltd",
+        "tagline": "Premium Real Estate & Property Management Systems",
+        "phone": "+256 700 123456",
+        "email": "contact@wakapms.com",
+        "address": "Plot 45, Kampala Road, Kampala, Uganda",
+        "favicon_url": "assets/images/favicon.ico"
+    },
     "application": {
         "single_instance_guid": "",
         "dpi_aware": true
