@@ -26,7 +26,8 @@
                     @csrf
                     <div class="header">
                         <img class="logo" src="assets/images/logo.svg" alt="">
-                        <h5>Log in</h5>
+                        <h5>{{ config('company.name') }}</h5>
+                        <p class="text-muted">{{ config('company.tagline') }}</p>
                     </div>
                     <div class="body">
                         @if($errors->has('login'))
@@ -60,7 +61,7 @@
                 <div class="copyright text-center">
                     &copy;
                     <script>document.write(new Date().getFullYear())</script>,
-                    <span><a href="templatespoint.net">Templates Point</a></span>
+                    <span><a href="#">{{ config('company.name') }}</a></span>
                 </div>
             </div>
             <div class="col-lg-8 col-sm-12">
