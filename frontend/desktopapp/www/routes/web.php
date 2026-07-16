@@ -465,4 +465,148 @@ Route::middleware('waka.auth')->group(function () {
 
         return redirect()->back()->with('success', 'Role deleted successfully (Offline Mode).');
     });
+
+    // Wallets & Ledgers Management
+    Route::get('/wallets', function () {
+        $token = session('auth_token');
+        $wallets = [];
+        $ledgerEntries = [];
+        $gatewayBalance = null;
+        $tenantsList = [];
+
+        if ($token !== 'mock_offline_token') {
+            try {
+                // 1. Fetch wallets
+                $walletResponse = Http::timeout(5)->withToken($token)->get('http://localhost:8080/api/v1/wallets');
+                if ($walletResponse->successful()) {
+                    $wallets = $walletResponse->json();
+                }
+
+                // 2. Fetch ledger entries
+                $ledgerResponse = Http::timeout(5)->withToken($token)->get('http://localhost:8080/api/v1/ledger-entries');
+                if ($ledgerResponse->successful()) {
+                    $ledgerEntries = $ledgerResponse->json();
+                }
+
+                // 3. Fetch gateway balance
+                $gatewayResponse = Http::timeout(5)->withToken($token)->get('http://localhost:8080/api/v1/payments/gateway/balance');
+                if ($gatewayResponse->successful()) {
+                    $gatewayBalance = $gatewayResponse->json();
+                }
+
+                // 4. Fetch tenants to populate wallet top-up dropdown profiles
+                $tenantsResponse = Http::timeout(5)->withToken($token)->get('http://localhost:8080/api/v1/tenants');
+                if ($tenantsResponse->successful()) {
+                    $tenantsList = $tenantsResponse->json();
+                }
+            } catch (\Exception $e) {
+                // fall back to offline mode
+            }
+        }
+
+        // Offline mock fallback if empty
+        if (empty($wallets)) {
+            $wallets = [
+                ['id' => 'w1', 'owner_type' => 'landlord', 'owner_id' => '1111', 'currency' => 'UGX', 'balance' => 1200000.00],
+                ['id' => 'w2', 'owner_type' => 'tenant', 'owner_id' => 'Jane Mugisha', 'currency' => 'UGX', 'balance' => 250000.00]
+            ];
+            $ledgerEntries = [
+                [
+                    'id' => 'le1',
+                    'entry_type' => 'rent_payment',
+                    'amount' => 1200000.00,
+                    'description' => 'Direct invoice payment via ioTec Pay Gateway ref MM-992039',
+                    'created_at' => '2026-07-16T12:00:00Z'
+                ],
+                [
+                    'id' => 'le2',
+                    'entry_type' => 'wallet_topup',
+                    'amount' => 250000.00,
+                    'description' => 'Wallet topup via ioTec Pay Gateway ref MM-992040',
+                    'created_at' => '2026-07-16T10:30:00Z'
+                ]
+            ];
+            $gatewayBalance = [
+                'balance' => 1450000.00,
+                'currency' => 'UGX'
+            ];
+            $tenantsList = [
+                [
+                    'id' => '3f657908-11e3-4eb0-9970-38ad36cf961b',
+                    'user' => [
+                        'first_name' => 'Jane',
+                        'last_name' => 'Mugisha',
+                        'email' => 'tenant@gmail.com'
+                    ]
+                ]
+            ];
+        }
+
+        return view('wallets', [
+            'wallets' => $wallets,
+            'ledgerEntries' => $ledgerEntries,
+            'gatewayBalance' => $gatewayBalance,
+            'tenantsList' => $tenantsList
+        ]);
+    })->name('wallets');
+
+    Route::post('/wallets/top-up', function () {
+        $token = session('auth_token');
+        $profileId = request('profile_id');
+        $phone = request('phone');
+        $amount = request('amount');
+
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(5)
+                    ->withToken($token)
+                    ->post('http://localhost:8080/api/v1/payments/wallets/top-up', [
+                        'profile_id' => $profileId,
+                        'phone' => $phone,
+                        'amount' => (float)$amount
+                    ]);
+
+                if ($response->successful()) {
+                    return redirect()->back()->with('success', 'Mobile money top-up initiated successfully. Wallet balance will reflect upon completion.');
+                }
+
+                $body = $response->json();
+                return redirect()->back()->withErrors(['error' => $body['error'] ?? 'Failed to initiate top-up.']);
+            } catch (\Exception $e) {
+                return redirect()->back()->withErrors(['error' => 'Backend is offline.']);
+            }
+        }
+
+        return redirect()->back()->with('success', 'Mobile money top-up initiated successfully (Offline Mock Success).');
+    });
+
+    Route::post('/wallets/disburse', function () {
+        $token = session('auth_token');
+        $payeePhone = request('payee_phone');
+        $note = request('note');
+        $amount = request('amount');
+
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(5)
+                    ->withToken($token)
+                    ->post('http://localhost:8080/api/v1/payments/gateway/disburse', [
+                        'payee_phone' => $payeePhone,
+                        'note' => $note,
+                        'amount' => (float)$amount
+                    ]);
+
+                if ($response->successful()) {
+                    return redirect()->back()->with('success', 'Disbursement executed successfully via ioTec Pay.');
+                }
+
+                $body = $response->json();
+                return redirect()->back()->withErrors(['error' => $body['error'] ?? 'Failed to execute disbursement.']);
+            } catch (\Exception $e) {
+                return redirect()->back()->withErrors(['error' => 'Backend is offline.']);
+            }
+        }
+
+        return redirect()->back()->with('success', 'Disbursement executed successfully (Offline Mock Success).');
+    });
 });
