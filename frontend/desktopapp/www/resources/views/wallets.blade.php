@@ -124,7 +124,7 @@
                         @csrf
                         <div class="form-group">
                             <label for="profile_id">Select Tenant <span class="text-danger">*</span></label>
-                            <select id="profile_id" name="profile_id" class="form-control show-tick" required>
+                            <select id="profile_id" name="profile_id" class="form-control" required>
                                 <option value="" disabled selected>-- Choose Tenant Profile --</option>
                                 @foreach($tenantsList as $t)
                                     <option value="{{ $t['id'] }}">

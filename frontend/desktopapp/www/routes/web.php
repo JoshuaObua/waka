@@ -609,4 +609,72 @@ Route::middleware('waka.auth')->group(function () {
 
         return redirect()->back()->with('success', 'Disbursement executed successfully (Offline Mock Success).');
     });
+
+    // Gateway Transactions Management
+    Route::get('/transactions', function () {
+        $token = session('auth_token');
+        $transactions = [];
+
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(5)->withToken($token)->get('http://localhost:8080/api/v1/payments');
+                if ($response->successful()) {
+                    $transactions = $response->json();
+                }
+            } catch (\Exception $e) {
+                // fall back to offline mode
+            }
+        }
+
+        // Offline mock fallback if empty
+        if (empty($transactions)) {
+            $transactions = [
+                [
+                    'id' => '1d657a08-08e3-4eb0-8970-38ad36cf961a',
+                    'amount' => 1200000.00,
+                    'payment_method' => 'mobile_money',
+                    'provider_reference' => 'TXN-99882211',
+                    'payment_date' => '2026-07-16T12:00:00Z',
+                    'status' => 'completed'
+                ],
+                [
+                    'id' => '2f657a08-08e3-4eb0-8970-38ad36cf961b',
+                    'amount' => 250000.00,
+                    'payment_method' => 'mobile_money',
+                    'provider_reference' => 'TXN-99882212',
+                    'payment_date' => '2026-07-16T10:30:00Z',
+                    'status' => 'pending'
+                ]
+            ];
+        }
+
+        return view('transactions', [
+            'transactions' => $transactions
+        ]);
+    })->name('transactions');
+
+    Route::post('/transactions/{id}/sync', function ($id) {
+        $token = session('auth_token');
+
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(10)
+                    ->withToken($token)
+                    ->get("http://localhost:8080/api/v1/payments/gateway/status/{$id}");
+
+                if ($response->successful()) {
+                    $txn = $response->json();
+                    $status = $txn['status'] ?? 'unknown';
+                    return redirect()->back()->with('success', "Transaction status synced successfully! Current status: " . strtoupper($status));
+                }
+                
+                $body = $response->json();
+                return redirect()->back()->withErrors(['error' => $body['error'] ?? 'Failed to sync status.']);
+            } catch (\Exception $e) {
+                return redirect()->back()->withErrors(['error' => 'Backend is offline.']);
+            }
+        }
+
+        return redirect()->back()->with('success', 'Transaction status synced successfully (Offline Mock Sync: COMPLETED).');
+    });
 });
