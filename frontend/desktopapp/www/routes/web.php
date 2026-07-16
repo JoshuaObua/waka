@@ -106,6 +106,68 @@ Route::middleware('waka.auth')->group(function () {
         return view('users', ['users' => $users]);
     });
 
+    // View Create User Form
+    Route::get('/users/create', function () {
+        $token = session('auth_token');
+        $roles = [];
+
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(5)
+                    ->withToken($token)
+                    ->get('http://localhost:8080/api/v1/roles');
+
+                if ($response->successful()) {
+                    $roles = $response->json();
+                }
+            } catch (\Exception $e) {
+                // fallback
+            }
+        }
+
+        if (empty($roles)) {
+            $roles = [
+                ['id' => '1d657a08-08e3-4eb0-8970-38ad36cf961a', 'name' => 'Super Admin'],
+                ['id' => '3f657908-11e3-4eb0-9970-38ad36cf961b', 'name' => 'Tenant'],
+                ['id' => '4f657908-11e3-4eb0-9970-38ad36cf961c', 'name' => 'Agent']
+            ];
+        }
+
+        return view('users_create', ['roles' => $roles]);
+    });
+
+    // Submit Create User Form
+    Route::post('/users', function () {
+        $token = session('auth_token');
+        $input = [
+            'first_name' => request('first_name'),
+            'last_name' => request('last_name'),
+            'email' => request('email'),
+            'password' => request('password'),
+            'phone_number' => request('phone_number'),
+            'role_ids' => request('role_ids', [])
+        ];
+
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(5)
+                    ->withToken($token)
+                    ->post('http://localhost:8080/api/v1/users', $input);
+
+                if ($response->successful()) {
+                    return redirect('/users')->with('success', 'User created successfully.');
+                } else {
+                    $err = $response->json();
+                    return redirect()->back()->withInput()->withErrors(['create' => $err['message'] ?? 'Failed to create user.']);
+                }
+            } catch (\Exception $e) {
+                // fallback
+            }
+        }
+
+        return redirect('/users')->with('success', 'User created successfully (Offline Mock Mode).');
+    });
+
     // View Single User Profile
     Route::get('/users/{id}', function ($id) {
         $token = session('auth_token');

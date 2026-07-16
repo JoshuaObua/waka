@@ -21,6 +21,7 @@
         </div>
         <div class="col-lg-5 col-md-6 col-sm-12">                
             <button class="btn btn-primary btn-icon float-right right_icon_toggle_btn" type="button"><i class="zmdi zmdi-arrow-right"></i></button>
+            <a href="/users/create" class="btn btn-info float-right mr-2"><i class="zmdi zmdi-plus"></i> Add New User</a>
         </div>
     </div>
 </div>
