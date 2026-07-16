@@ -4,7 +4,7 @@
 
 @section('styles')
     <!-- JQuery DataTable Css -->
-    <link rel="stylesheet" href="assets/plugins/jquery-datatable/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" href="{{ asset('assets/plugins/jquery-datatable/dataTables.bootstrap4.min.css') }}">
 @endsection
 
 @section('content')
@@ -155,15 +155,15 @@
 
 @section('scripts')
     <!-- Jquery DataTable Plugin Js --> 
-    <script src="assets/bundles/datatablescripts.bundle.js"></script>
-    <script src="assets/plugins/jquery-datatable/buttons/dataTables.buttons.min.js"></script>
-    <script src="assets/plugins/jquery-datatable/buttons/buttons.bootstrap4.min.js"></script>
-    <script src="assets/plugins/jquery-datatable/buttons/buttons.colVis.min.js"></script>
-    <script src="assets/plugins/jquery-datatable/buttons/buttons.flash.min.js"></script>
-    <script src="assets/plugins/jquery-datatable/buttons/buttons.html5.min.js"></script>
-    <script src="assets/plugins/jquery-datatable/buttons/buttons.print.min.js"></script>
+    <script src="{{ asset('assets/bundles/datatablescripts.bundle.js') }}"></script>
+    <script src="{{ asset('assets/plugins/jquery-datatable/buttons/dataTables.buttons.min.js') }}"></script>
+    <script src="{{ asset('assets/plugins/jquery-datatable/buttons/buttons.bootstrap4.min.js') }}"></script>
+    <script src="{{ asset('assets/plugins/jquery-datatable/buttons/buttons.colVis.min.js') }}"></script>
+    <script src="{{ asset('assets/plugins/jquery-datatable/buttons/buttons.flash.min.js') }}"></script>
+    <script src="{{ asset('assets/plugins/jquery-datatable/buttons/buttons.html5.min.js') }}"></script>
+    <script src="{{ asset('assets/plugins/jquery-datatable/buttons/buttons.print.min.js') }}"></script>
     
-    <script src="assets/js/pages/tables/jquery-datatable.js"></script>
+    <script src="{{ asset('assets/js/pages/tables/jquery-datatable.js') }}"></script>
     
     <script>
     document.addEventListener('DOMContentLoaded', function () {

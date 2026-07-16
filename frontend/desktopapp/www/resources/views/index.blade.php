@@ -3,9 +3,9 @@
 @section('title', config('company.name') . ' - Dashboard')
 
 @section('styles')
-    <link rel="stylesheet" href="assets/plugins/jvectormap/jquery-jvectormap-2.0.3.min.css"/>
-    <link rel="stylesheet" href="assets/plugins/charts-c3/plugin.css"/>
-    <link rel="stylesheet" href="assets/plugins/morrisjs/morris.min.css" />
+    <link rel="stylesheet" href="{{ asset('assets/plugins/jvectormap/jquery-jvectormap-2.0.3.min.css') }}"/>
+    <link rel="stylesheet" href="{{ asset('assets/plugins/charts-c3/plugin.css') }}"/>
+    <link rel="stylesheet" href="{{ asset('assets/plugins/morrisjs/morris.min.css') }}" />
 @endsection
 
 @section('content')
@@ -92,8 +92,8 @@
 @endsection
 
 @section('scripts')
-    <script src="assets/bundles/jvectormap.bundle.js"></script>
-    <script src="assets/bundles/sparkline.bundle.js"></script>
-    <script src="assets/bundles/c3.bundle.js"></script>
-    <script src="assets/js/pages/index.js"></script>
+    <script src="{{ asset('assets/bundles/jvectormap.bundle.js') }}"></script>
+    <script src="{{ asset('assets/bundles/sparkline.bundle.js') }}"></script>
+    <script src="{{ asset('assets/bundles/c3.bundle.js') }}"></script>
+    <script src="{{ asset('assets/js/pages/index.js') }}"></script>
 @endsection

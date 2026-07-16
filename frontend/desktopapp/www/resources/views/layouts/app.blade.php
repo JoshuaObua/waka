@@ -8,13 +8,13 @@
     <meta name="description" content="Responsive Bootstrap 4 and web Application ui kit.">
     <title>@yield('title', config('company.name'))</title>
     <link rel="icon" href="{{ asset(config('company.favicon_url')) }}" type="image/x-icon">
-    <link rel="stylesheet" href="assets/plugins/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ asset('assets/plugins/bootstrap/css/bootstrap.min.css') }}">
     
     <!-- Page Specific Stylesheets -->
     @yield('styles')
     
     <!-- Custom Css -->
-    <link rel="stylesheet" href="assets/css/style.min.css">
+    <link rel="stylesheet" href="{{ asset('assets/css/style.min.css') }}">
 </head>
 
 <body class="theme-blush">
@@ -22,7 +22,7 @@
     <!-- Page Loader -->
     <div class="page-loader-wrapper">
         <div class="loader">
-            <div class="m-t-30"><img class="zmdi-hc-spin" src="assets/images/loader.svg" width="48" height="48" alt="{{ config('company.name') }}"></div>
+            <div class="m-t-30"><img class="zmdi-hc-spin" src="{{ asset('assets/images/loader.svg') }}" width="48" height="48" alt="{{ config('company.name') }}"></div>
             <p>Please wait...</p>
         </div>
     </div>
@@ -54,13 +54,13 @@
     <aside id="leftsidebar" class="sidebar">
         <div class="navbar-brand">
             <button class="btn-menu ls-toggle-btn" type="button"><i class="zmdi zmdi-menu"></i></button>
-            <a href="/"><img src="assets/images/logo.svg" width="25" alt="{{ config('company.name') }}"><span class="m-l-10">{{ config('company.name') }}</span></a>
+            <a href="/"><img src="{{ asset('assets/images/logo.svg') }}" width="25" alt="{{ config('company.name') }}"><span class="m-l-10">{{ config('company.name') }}</span></a>
         </div>
         <div class="menu">
             <ul class="list">
                 <li>
                     <div class="user-info">
-                        <a class="image" href="profile.html"><img src="assets/images/profile_av.jpg" alt="User"></a>
+                        <a class="image" href="/users/{{ session('user_id', '') }}"><img src="{{ asset('assets/images/profile_av.jpg') }}" alt="User"></a>
                         <div class="detail">
                             <h4>{{ ucfirst(explode('@', session('user_email', 'User'))[0]) }}</h4>
                             <small>{{ implode(', ', session('user_roles', ['Guest'])) }}</small>                        
@@ -119,9 +119,9 @@
     </section>
 
     <!-- Global Base JS bundles -->
-    <script src="assets/bundles/libscripts.bundle.js"></script>
-    <script src="assets/bundles/vendorscripts.bundle.js"></script>
-    <script src="assets/bundles/mainscripts.bundle.js"></script>
+    <script src="{{ asset('assets/bundles/libscripts.bundle.js') }}"></script>
+    <script src="{{ asset('assets/bundles/vendorscripts.bundle.js') }}"></script>
+    <script src="{{ asset('assets/bundles/mainscripts.bundle.js') }}"></script>
     
     <!-- Page Specific Scripts -->
     @yield('scripts')
