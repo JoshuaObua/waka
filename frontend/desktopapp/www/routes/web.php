@@ -99,8 +99,186 @@ Route::middleware('waka.auth')->group(function () {
     })->name('dashboard');
 
     // Mappings for other dashboard pages to ensure post-login protection
+    // Leases & Contracts Management
     Route::get('/leases', function () {
-        return view('leases');
+        $token = session('auth_token');
+        $leases = [];
+
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(5)->withToken($token)->get('http://localhost:8080/api/v1/leases');
+                if ($response->successful()) {
+                    $leases = $response->json();
+                }
+            } catch (\Exception $e) {
+                // fall back
+            }
+        }
+
+        // Mock fallback if empty
+        if (empty($leases)) {
+            $leases = [
+                [
+                    'id' => '1d657a08-08e3-4eb0-8970-38ad36cf961a',
+                    'unit' => ['unit_number' => 'Suite 101', 'property_name' => 'Acme Plaza'],
+                    'tenant_profile' => [
+                        'user' => [
+                            'first_name' => 'Jane',
+                            'last_name' => 'Mugisha',
+                            'email' => 'tenant@gmail.com'
+                        ]
+                    ],
+                    'start_date' => '2026-06-01',
+                    'end_date' => '2027-06-01',
+                    'billing_cycle' => 'monthly',
+                    'rent_amount' => 1200000.00,
+                    'deposit_amount' => 1200000.00,
+                    'status' => 'pending'
+                ]
+            ];
+        }
+
+        return view('leases', ['leases' => $leases]);
+    })->name('leases');
+
+    Route::get('/leases/create', function () {
+        $token = session('auth_token');
+        $units = [];
+        $tenantProfiles = [];
+
+        if ($token !== 'mock_offline_token') {
+            try {
+                // Fetch units (to find vacant ones)
+                $unitsResponse = Http::timeout(5)->withToken($token)->get('http://localhost:8080/api/v1/units');
+                if ($unitsResponse->successful()) {
+                    $units = $unitsResponse->json();
+                }
+
+                // Fetch tenant profiles
+                $tenantsResponse = Http::timeout(5)->withToken($token)->get('http://localhost:8080/api/v1/tenants');
+                if ($tenantsResponse->successful()) {
+                    $tenantProfiles = $tenantsResponse->json();
+                }
+            } catch (\Exception $e) {
+                // fallback
+            }
+        }
+
+        // Mock fallback if empty
+        if (empty($units)) {
+            $units = [
+                [
+                    'id' => '1a111111-1111-1111-1111-111111111111',
+                    'unit_number' => 'Suite 101',
+                    'property_name' => 'Acme Plaza',
+                    'rent_amount' => 1200000.00,
+                    'status' => 'vacant'
+                ],
+                [
+                    'id' => '2b222222-2222-2222-2222-222222222222',
+                    'unit_number' => 'Suite 102',
+                    'property_name' => 'Acme Plaza',
+                    'rent_amount' => 1500000.00,
+                    'status' => 'vacant'
+                ]
+            ];
+        }
+        if (empty($tenantProfiles)) {
+            $tenantProfiles = [
+                [
+                    'id' => '9a111111-1111-1111-1111-111111111111',
+                    'user' => [
+                        'first_name' => 'Jane',
+                        'last_name' => 'Mugisha',
+                        'email' => 'tenant@gmail.com'
+                    ]
+                ]
+            ];
+        }
+
+        // Filter for vacant units
+        $vacantUnits = array_filter($units, function ($u) {
+            return strtolower($u['status'] ?? 'vacant') === 'vacant';
+        });
+
+        return view('leases_create', [
+            'units' => array_values($vacantUnits),
+            'tenants' => $tenantProfiles
+        ]);
+    });
+
+    Route::post('/leases', function () {
+        $token = session('auth_token');
+        $unitId = request('unit_id');
+        $tenantProfileId = request('tenant_profile_id');
+        $startDate = request('start_date');
+        $endDate = request('end_date');
+        $billingCycle = request('billing_cycle');
+        $rentAmount = request('rent_amount');
+        $depositAmount = request('deposit_amount') ?? 0;
+        $escalationRate = request('escalation_rate') ?? 0;
+        $lateFeePercentage = request('late_fee_percentage') ?? 0;
+        $lateFeeGraceDays = request('late_fee_grace_days') ?? 0;
+
+        // GORM expects dates formatted as RFC3339
+        $formattedStart = date('Y-m-d\T00:00:00\Z', strtotime($startDate));
+        $formattedEnd = date('Y-m-d\T00:00:00\Z', strtotime($endDate));
+
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(5)
+                    ->withToken($token)
+                    ->post('http://localhost:8080/api/v1/leases', [
+                        'unit_id' => $unitId,
+                        'tenant_profile_id' => $tenantProfileId,
+                        'start_date' => $formattedStart,
+                        'end_date' => $formattedEnd,
+                        'billing_cycle' => $billingCycle,
+                        'rent_amount' => (float)$rentAmount,
+                        'deposit_amount' => (float)$depositAmount,
+                        'escalation_rate' => (float)$escalationRate,
+                        'late_fee_percentage' => (float)$lateFeePercentage,
+                        'late_fee_grace_days' => (int)$lateFeeGraceDays
+                    ]);
+
+                if ($response->successful()) {
+                    return redirect()->route('leases')->with('success', 'Lease contract onboarded successfully.');
+                }
+
+                $body = $response->json();
+                return redirect()->back()->withErrors(['error' => $body['error'] ?? 'Failed to onboard lease contract.']);
+            } catch (\Exception $e) {
+                return redirect()->back()->withErrors(['error' => 'Backend is offline.']);
+            }
+        }
+
+        return redirect()->route('leases')->with('success', 'Lease contract onboarded successfully (Offline Mock Success).');
+    });
+
+    Route::post('/leases/{id}/status', function ($id) {
+        $token = session('auth_token');
+        $status = request('status');
+
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(5)
+                    ->withToken($token)
+                    ->put("http://localhost:8080/api/v1/leases/{$id}/status", [
+                        'status' => $status
+                    ]);
+
+                if ($response->successful()) {
+                    return redirect()->back()->with('success', 'Lease contract status updated to ' . strtoupper($status) . '.');
+                }
+
+                $body = $response->json();
+                return redirect()->back()->withErrors(['error' => $body['error'] ?? 'Failed to update lease status.']);
+            } catch (\Exception $e) {
+                return redirect()->back()->withErrors(['error' => 'Backend is offline.']);
+            }
+        }
+
+        return redirect()->back()->with('success', 'Lease contract status updated successfully (Offline Mock Success).');
     });
     // Properties Management
     Route::get('/properties', function () {
