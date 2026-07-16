@@ -3,13 +3,7 @@
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    if (!session()->has('auth_token')) {
-        return redirect('/login');
-    }
-    return view('index');
-})->name('dashboard');
-
+// Authentication Routes
 Route::get('/login', function () {
     if (session()->has('auth_token')) {
         return redirect('/');
@@ -50,4 +44,22 @@ Route::post('/logout', function () {
 
 Route::get('/register', function () {
     return view('sign-up');
+});
+
+// Protected Administration Routes
+Route::middleware('waka.auth')->group(function () {
+    Route::get('/', function () {
+        return view('index');
+    })->name('dashboard');
+
+    // Mappings for other dashboard pages to ensure post-login protection
+    Route::get('/leases', function () {
+        return view('leases');
+    });
+    Route::get('/properties', function () {
+        return view('properties');
+    });
+    Route::get('/users', function () {
+        return view('users');
+    });
 });
