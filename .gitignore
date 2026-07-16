@@ -1,0 +1,19 @@
+# PHP Desktop binaries
+frontend/desktopapp/*.exe
+frontend/desktopapp/*.dll
+frontend/desktopapp/*.pak
+frontend/desktopapp/*.dat
+frontend/desktopapp/*.bin
+frontend/desktopapp/php/
+frontend/desktopapp/webcache/
+frontend/desktopapp/debug.log
+
+# Laravel files
+frontend/desktopapp/www/vendor/
+frontend/desktopapp/www/.env
+frontend/desktopapp/www/bootstrap/cache/
+frontend/desktopapp/www/node_modules/
+frontend/desktopapp/www/storage/*.sqlite
+frontend/desktopapp/www/storage/framework/cache/data/*
+frontend/desktopapp/www/storage/framework/sessions/*
+frontend/desktopapp/www/storage/framework/views/*
