@@ -3,6 +3,16 @@
 @section('title', config('company.name') . ' - User Profile')
 
 @section('content')
+@php
+    $isTenant = false;
+    foreach ($user['roles'] ?? [] as $role) {
+        if (strtolower($role['name'] ?? '') === 'tenant') {
+            $isTenant = true;
+            break;
+        }
+    }
+@endphp
+
 <div class="block-header">
     <div class="row">
         <div class="col-lg-7 col-md-6 col-sm-12">
@@ -67,6 +77,12 @@
                 <div class="body">
                     <ul class="nav nav-tabs p-0 mb-3" role="tablist">
                         <li class="nav-item"><a class="nav-link active" data-toggle="tab" href="#details" role="tab">Account Info</a></li>
+                        @if($isTenant)
+                            <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#kyc" role="tab">KYC Details</a></li>
+                            <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#transactions" role="tab">Transactions</a></li>
+                            <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#invoices" role="tab">Invoices</a></li>
+                            <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#bills" role="tab">Bills</a></li>
+                        @endif
                         <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#actions" role="tab">Administrative Actions</a></li>
                     </ul>
                     
@@ -111,7 +127,165 @@
                             </div>
                         </div>
                         
-                        <!-- Tab 2: Admin Actions -->
+                        @if($isTenant)
+                            <!-- Tab 2: KYC Details (Dummy Data) -->
+                            <div class="tab-pane" id="kyc" role="tabpanel">
+                                <div class="table-responsive">
+                                    <table class="table table-hover mb-0">
+                                        <tbody>
+                                            <tr>
+                                                <td><strong>ID Type</strong></td>
+                                                <td>National ID Card</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>ID Number</strong></td>
+                                                <td>CM95018128XJ</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Verification Status</strong></td>
+                                                <td><span class="badge badge-success">Verified</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Guarantor Name</strong></td>
+                                                <td>Peter Mugisha</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Guarantor Phone</strong></td>
+                                                <td>+256 772 999999</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Bank Name</strong></td>
+                                                <td>Stanbic Bank</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Bank Account Number</strong></td>
+                                                <td>9080001234567</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            
+                            <!-- Tab 3: Transactions (Dummy Data) -->
+                            <div class="tab-pane" id="transactions" role="tabpanel">
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-hover mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th>Date</th>
+                                                <th>Transaction ID</th>
+                                                <th>Type</th>
+                                                <th>Amount</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>2026-07-16</td>
+                                                <td>TXN-90812</td>
+                                                <td>Wallet Top-up</td>
+                                                <td>45,000 UGX</td>
+                                                <td><span class="badge badge-success">Completed</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td>2026-07-16</td>
+                                                <td>TXN-90813</td>
+                                                <td>Rent Invoice Payment</td>
+                                                <td>60,000 UGX</td>
+                                                <td><span class="badge badge-success">Completed</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td>2026-07-15</td>
+                                                <td>TXN-90814</td>
+                                                <td>Utility Bill Payout</td>
+                                                <td>15,000 UGX</td>
+                                                <td><span class="badge badge-success">Completed</span></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            
+                            <!-- Tab 4: Invoices (Dummy Data) -->
+                            <div class="tab-pane" id="invoices" role="tabpanel">
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-hover mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th>Invoice ID</th>
+                                                <th>Billing Period</th>
+                                                <th>Due Date</th>
+                                                <th>Total Amount</th>
+                                                <th>Paid Amount</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>INV-10029</td>
+                                                <td>June 2026</td>
+                                                <td>2026-07-20</td>
+                                                <td>60,000 UGX</td>
+                                                <td>60,000 UGX</td>
+                                                <td><span class="badge badge-success">Paid</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td>INV-10030</td>
+                                                <td>July 2026</td>
+                                                <td>2026-08-20</td>
+                                                <td>60,000 UGX</td>
+                                                <td>0 UGX</td>
+                                                <td><span class="badge badge-danger">Unpaid</span></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            
+                            <!-- Tab 5: Bills (Dummy Data) -->
+                            <div class="tab-pane" id="bills" role="tabpanel">
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-hover mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th>Bill ID</th>
+                                                <th>Meter Number</th>
+                                                <th>Type</th>
+                                                <th>Previous Reading</th>
+                                                <th>Current Reading</th>
+                                                <th>Rate / Unit</th>
+                                                <th>Total Charge</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>BILL-502</td>
+                                                <td>ELEC-90812</td>
+                                                <td>Electricity</td>
+                                                <td>12,500.00</td>
+                                                <td>12,750.00</td>
+                                                <td>12.50 UGX</td>
+                                                <td>3,125 UGX</td>
+                                                <td><span class="badge badge-success">Paid</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td>BILL-503</td>
+                                                <td>WAT-90812</td>
+                                                <td>Water</td>
+                                                <td>450.00</td>
+                                                <td>480.00</td>
+                                                <td>5.00 UGX</td>
+                                                <td>150 UGX</td>
+                                                <td><span class="badge badge-danger">Unpaid</span></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        @endif
+                        
+                        <!-- Tab: Admin Actions -->
                         <div class="tab-pane" id="actions" role="tabpanel">
                             <!-- Toggle status card -->
                             <div class="card border mb-3">
