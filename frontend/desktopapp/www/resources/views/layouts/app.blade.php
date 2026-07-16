@@ -18,6 +18,22 @@
 </head>
 
 <body class="theme-blush">
+    <script>
+        (function() {
+            var savedMode = localStorage.getItem('theme-mode');
+            if (savedMode === 'dark') {
+                document.body.classList.add('theme-dark');
+            } else {
+                document.body.classList.remove('theme-dark');
+            }
+
+            var savedSkin = localStorage.getItem('theme-skin');
+            if (savedSkin) {
+                document.body.className = document.body.className.replace(/\btheme-[a-z]+\b/g, '');
+                document.body.classList.add('theme-' + savedSkin);
+            }
+        })();
+    </script>
 
     <!-- Page Loader -->
     <div class="page-loader-wrapper">
@@ -331,6 +347,33 @@
                 if (href && href !== '#' && href !== 'javascript:void(0);' && !$(this).hasClass('menu-toggle')) {
                     // Show full-screen loader
                     $('.page-loader-wrapper').fadeIn(150);
+                }
+            });
+
+            // Synchronize theme mode selector status
+            var savedMode = localStorage.getItem('theme-mode') || 'light';
+            if (savedMode === 'dark') {
+                $('#darktheme').prop('checked', true);
+            } else {
+                $('#lighttheme').prop('checked', true);
+            }
+
+            // Synchronize active color accent indicator state
+            var savedSkin = localStorage.getItem('theme-skin') || 'blush';
+            $('.choose-skin li').removeClass('active');
+            $('.choose-skin li[data-theme="' + savedSkin + '"]').addClass('active');
+
+            // Listen to theme mode radio clicks to update storage
+            $('.light_dark input').on('change', function() {
+                var val = $(this).val();
+                localStorage.setItem('theme-mode', val);
+            });
+
+            // Listen to theme skin selection clicks to update storage
+            $('.choose-skin li').on('click', function() {
+                var skin = $(this).data('theme');
+                if (skin) {
+                    localStorage.setItem('theme-skin', skin);
                 }
             });
         });
