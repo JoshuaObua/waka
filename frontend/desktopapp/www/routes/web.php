@@ -323,4 +323,146 @@ Route::middleware('waka.auth')->group(function () {
 
         return redirect()->back()->with('success', 'User password reset successfully (Offline Mode).');
     });
+
+    // Roles & Permission Matrix Management
+    Route::get('/roles', function () {
+        $token = session('auth_token');
+        $roles = [];
+        $permissions = [];
+        $rolePermissions = [];
+
+        if ($token !== 'mock_offline_token') {
+            try {
+                // 1. Fetch permissions
+                $permResponse = Http::timeout(5)->withToken($token)->get('http://localhost:8080/api/v1/permissions');
+                if ($permResponse->successful()) {
+                    $permissions = $permResponse->json();
+                }
+
+                // 2. Fetch roles
+                $roleResponse = Http::timeout(5)->withToken($token)->get('http://localhost:8080/api/v1/roles');
+                if ($roleResponse->successful()) {
+                    $roles = $roleResponse->json();
+                }
+
+                // 3. Fetch permissions assigned to each role
+                foreach ($roles as $r) {
+                    $detailResponse = Http::timeout(5)->withToken($token)->get("http://localhost:8080/api/v1/roles/{$r['id']}");
+                    if ($detailResponse->successful()) {
+                        $detail = $detailResponse->json();
+                        $rolePermissions[$r['id']] = array_column($detail['permissions'] ?? [], 'id');
+                    }
+                }
+            } catch (\Exception $e) {
+                // fallback to offline mode
+            }
+        }
+
+        // Offline mock fallback if empty
+        if (empty($roles)) {
+            $roles = [
+                ['id' => '11111111-1111-1111-1111-111111111111', 'name' => 'Super Admin', 'description' => 'Platform level super administrator', 'tenant_id' => null],
+                ['id' => '22222222-2222-2222-2222-222222222222', 'name' => 'Tenant', 'description' => 'Standard property tenant space', 'tenant_id' => null],
+                ['id' => '33333333-3333-3333-3333-333333333333', 'name' => 'Property Manager', 'description' => 'Rent collection and unit manager', 'tenant_id' => 'acme'],
+            ];
+            $permissions = [
+                ['id' => 'p1', 'code' => 'property:create', 'category' => 'Property', 'description' => 'Allow creating properties'],
+                ['id' => 'p2', 'code' => 'property:view', 'category' => 'Property', 'description' => 'Allow viewing properties'],
+                ['id' => 'p3', 'code' => 'unit:create', 'category' => 'Property', 'description' => 'Allow creating units'],
+                ['id' => 'p4', 'code' => 'unit:view', 'category' => 'Property', 'description' => 'Allow viewing units'],
+                ['id' => 'p5', 'code' => 'tenant:onboard', 'category' => 'Tenant', 'description' => 'Allow onboarding new tenants'],
+                ['id' => 'p6', 'code' => 'tenant:view', 'category' => 'Tenant', 'description' => 'Allow viewing tenant profiles'],
+                ['id' => 'p7', 'code' => 'invoice:create', 'category' => 'Financial', 'description' => 'Allow creating invoices'],
+                ['id' => 'p8', 'code' => 'invoice:view', 'category' => 'Financial', 'description' => 'Allow viewing invoices'],
+            ];
+            $rolePermissions = [
+                '11111111-1111-1111-1111-111111111111' => ['p1', 'p2', 'p3', 'p4', 'p5', 'p6', 'p7', 'p8'],
+                '22222222-2222-2222-2222-222222222222' => ['p2', 'p4', 'p6', 'p8'],
+                '33333333-3333-3333-3333-333333333333' => ['p1', 'p2', 'p3', 'p4', 'p8'],
+            ];
+        }
+
+        return view('roles', [
+            'roles' => $roles,
+            'permissions' => $permissions,
+            'rolePermissions' => $rolePermissions
+        ]);
+    })->name('roles');
+
+    Route::post('/roles', function () {
+        $token = session('auth_token');
+        $name = request('name');
+        $description = request('description');
+
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(5)
+                    ->withToken($token)
+                    ->post('http://localhost:8080/api/v1/roles', [
+                        'name' => $name,
+                        'description' => $description
+                    ]);
+
+                if ($response->successful()) {
+                    return redirect()->back()->with('success', 'Role created successfully.');
+                }
+                
+                $body = $response->json();
+                return redirect()->back()->withErrors(['error' => $body['error'] ?? 'Failed to create role.']);
+            } catch (\Exception $e) {
+                return redirect()->back()->withErrors(['error' => 'Backend is currently offline.']);
+            }
+        }
+
+        return redirect()->back()->with('success', 'Role created successfully (Offline Mode).');
+    });
+
+    Route::post('/roles/{id}/permissions', function ($id) {
+        $token = session('auth_token');
+        $permissionIds = request('permission_ids', []);
+
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(5)
+                    ->withToken($token)
+                    ->put("http://localhost:8080/api/v1/roles/{$id}/permissions", [
+                        'permission_ids' => $permissionIds
+                    ]);
+
+                if ($response->successful()) {
+                    return response()->json(['status' => 'success', 'message' => 'Role permissions updated successfully.']);
+                }
+                
+                $body = $response->json();
+                return response()->json(['status' => 'error', 'message' => $body['error'] ?? 'Failed to update permissions.'], 400);
+            } catch (\Exception $e) {
+                return response()->json(['status' => 'error', 'message' => 'Backend is offline.'], 500);
+            }
+        }
+
+        return response()->json(['status' => 'success', 'message' => 'Role permissions updated successfully (Offline Mode).']);
+    });
+
+    Route::post('/roles/{id}/delete', function ($id) {
+        $token = session('auth_token');
+
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(5)
+                    ->withToken($token)
+                    ->delete("http://localhost:8080/api/v1/roles/{$id}");
+
+                if ($response->successful()) {
+                    return redirect()->back()->with('success', 'Role deleted successfully.');
+                }
+                
+                $body = $response->json();
+                return redirect()->back()->withErrors(['error' => $body['error'] ?? 'Failed to delete role.']);
+            } catch (\Exception $e) {
+                return redirect()->back()->withErrors(['error' => 'Backend is offline.']);
+            }
+        }
+
+        return redirect()->back()->with('success', 'Role deleted successfully (Offline Mode).');
+    });
 });
