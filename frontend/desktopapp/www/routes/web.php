@@ -102,8 +102,177 @@ Route::middleware('waka.auth')->group(function () {
     Route::get('/leases', function () {
         return view('leases');
     });
+    // Properties Management
     Route::get('/properties', function () {
-        return view('properties');
+        $token = session('auth_token');
+        $properties = [];
+
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(5)->withToken($token)->get('http://localhost:8080/api/v1/properties');
+                if ($response->successful()) {
+                    $properties = $response->json();
+                }
+            } catch (\Exception $e) {
+                // fall back
+            }
+        }
+
+        // Mock fallback if empty or offline
+        if (empty($properties)) {
+            $properties = [
+                [
+                    'id' => '11111111-1111-1111-1111-111111111111',
+                    'name' => 'Acme Plaza',
+                    'description' => 'Commercial office space block in Kampala',
+                    'address' => 'Plot 14, Kampala Road',
+                    'gps_coordinates' => '0.3125, 32.5811',
+                    'land_title_number' => 'FRVOL-29910-44'
+                ]
+            ];
+        }
+
+        return view('properties', ['properties' => $properties]);
+    })->name('properties');
+
+    Route::post('/properties', function () {
+        $token = session('auth_token');
+        $name = request('name');
+        $description = request('description');
+        $address = request('address');
+        $gps = request('gps_coordinates');
+        $title = request('land_title_number');
+
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(5)
+                    ->withToken($token)
+                    ->post('http://localhost:8080/api/v1/properties', [
+                        'name' => $name,
+                        'description' => $description,
+                        'address' => $address,
+                        'gps_coordinates' => $gps,
+                        'land_title_number' => $title
+                    ]);
+
+                if ($response->successful()) {
+                    return redirect()->back()->with('success', 'Property registered successfully.');
+                }
+
+                $body = $response->json();
+                return redirect()->back()->withErrors(['error' => $body['error'] ?? 'Failed to register property.']);
+            } catch (\Exception $e) {
+                return redirect()->back()->withErrors(['error' => 'Backend is offline.']);
+            }
+        }
+
+        return redirect()->back()->with('success', 'Property registered successfully (Offline Mock Success).');
+    });
+
+    // Rentable Units Management
+    Route::get('/units', function () {
+        $token = session('auth_token');
+        $units = [];
+        $properties = [];
+
+        if ($token !== 'mock_offline_token') {
+            try {
+                // Fetch units
+                $response = Http::timeout(5)->withToken($token)->get('http://localhost:8080/api/v1/units');
+                if ($response->successful()) {
+                    $units = $response->json();
+                }
+
+                // Fetch properties for dropdown
+                $propsResponse = Http::timeout(5)->withToken($token)->get('http://localhost:8080/api/v1/properties');
+                if ($propsResponse->successful()) {
+                    $properties = $propsResponse->json();
+                }
+            } catch (\Exception $e) {
+                // fallback
+            }
+        }
+
+        // Mock fallback if empty
+        if (empty($units)) {
+            $units = [
+                [
+                    'id' => '1a111111-1111-1111-1111-111111111111',
+                    'unit_number' => 'Suite 101',
+                    'floor_number' => 1,
+                    'category' => 'commercial',
+                    'type' => 'office',
+                    'rent_amount' => 1200000.00,
+                    'status' => 'occupied',
+                    'property_name' => 'Acme Plaza'
+                ],
+                [
+                    'id' => '2b222222-2222-2222-2222-222222222222',
+                    'unit_number' => 'Suite 102',
+                    'floor_number' => 1,
+                    'category' => 'commercial',
+                    'type' => 'office',
+                    'rent_amount' => 1500000.00,
+                    'status' => 'occupied',
+                    'property_name' => 'Acme Plaza'
+                ],
+                [
+                    'id' => '3c333333-3333-3333-3333-333333333333',
+                    'unit_number' => 'Suite 103',
+                    'floor_number' => 1,
+                    'category' => 'commercial',
+                    'type' => 'office',
+                    'rent_amount' => 1800000.00,
+                    'status' => 'vacant',
+                    'property_name' => 'Acme Plaza'
+                ]
+            ];
+            $properties = [
+                [
+                    'id' => '11111111-1111-1111-1111-111111111111',
+                    'name' => 'Acme Plaza'
+                ]
+            ];
+        }
+
+        return view('units', [
+            'units' => $units,
+            'properties' => $properties
+        ]);
+    })->name('units');
+
+    Route::post('/properties/{property_id}/units', function ($property_id) {
+        $token = session('auth_token');
+        $unitNumber = request('unit_number');
+        $floorNumber = request('floor_number');
+        $category = request('category');
+        $type = request('type');
+        $rentAmount = request('rent_amount');
+
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(5)
+                    ->withToken($token)
+                    ->post("http://localhost:8080/api/v1/properties/{$property_id}/units", [
+                        'unit_number' => $unitNumber,
+                        'floor_number' => (int)$floorNumber,
+                        'category' => $category,
+                        'type' => $type,
+                        'rent_amount' => (float)$rentAmount
+                    ]);
+
+                if ($response->successful()) {
+                    return redirect()->back()->with('success', 'Rentable unit added successfully.');
+                }
+
+                $body = $response->json();
+                return redirect()->back()->withErrors(['error' => $body['error'] ?? 'Failed to add rentable unit.']);
+            } catch (\Exception $e) {
+                return redirect()->back()->withErrors(['error' => 'Backend is offline.']);
+            }
+        }
+
+        return redirect()->back()->with('success', 'Rentable unit added successfully (Offline Mock Success).');
     });
 
     // Tenants List (filtered users)
