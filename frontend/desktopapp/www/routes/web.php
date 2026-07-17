@@ -423,6 +423,33 @@ Route::middleware('waka.auth')->group(function () {
         ]);
     })->name('units');
 
+    Route::get('/units/create', function () {
+        $token = session('auth_token');
+        $properties = [];
+
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(5)->withToken($token)->get('http://localhost:8080/api/v1/properties');
+                if ($response->successful()) {
+                    $properties = $response->json();
+                }
+            } catch (\Exception $e) {
+                // fallback
+            }
+        }
+
+        if (empty($properties)) {
+            $properties = [
+                [
+                    'id' => '11111111-1111-1111-1111-111111111111',
+                    'name' => 'Acme Plaza'
+                ]
+            ];
+        }
+
+        return view('units_create', ['properties' => $properties]);
+    });
+
     Route::post('/properties/{property_id}/units', function ($property_id) {
         $token = session('auth_token');
         $unitNumber = request('unit_number');

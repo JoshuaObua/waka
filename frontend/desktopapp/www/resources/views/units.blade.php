@@ -5,8 +5,6 @@
 @section('styles')
     <!-- JQuery DataTable Css -->
     <link rel="stylesheet" href="{{ asset('assets/plugins/jquery-datatable/dataTables.bootstrap4.min.css') }}">
-    <!-- Bootstrap Select Css -->
-    <link rel="stylesheet" href="{{ asset('assets/plugins/bootstrap-select/css/bootstrap-select.css') }}">
     <style>
         .badge-occupied {
             background-color: #28a745;
@@ -37,6 +35,9 @@
         </div>
         <div class="col-lg-5 col-md-6 col-sm-12">                
             <button class="btn btn-primary btn-icon float-right right_icon_toggle_btn" type="button"><i class="zmdi zmdi-arrow-right"></i></button>
+            <a href="/units/create" class="btn btn-success btn-icon btn-round float-right m-r-10" title="Add New Unit">
+                <i class="zmdi zmdi-plus"></i> <span class="hidden-sm">Create Unit</span>
+            </a>
         </div>
     </div>
 </div>
@@ -57,63 +58,8 @@
     @endif
 
     <div class="row clearfix">
-        <!-- Onboard Rentable Unit Form -->
-        <div class="col-lg-4 col-md-12">
-            <div class="card">
-                <div class="header">
-                    <h2><strong>Onboard</strong> Rentable Unit</h2>
-                </div>
-                <div class="body">
-                    <form id="unitForm" action="" method="POST">
-                        @csrf
-                        <div class="form-group">
-                            <label for="property_id">Belongs To Property <span class="text-danger">*</span></label>
-                            <select id="property_id" name="property_id" class="form-control show-tick" required>
-                                <option value="" disabled selected>-- Choose Property --</option>
-                                @foreach($properties as $prop)
-                                    <option value="{{ $prop['id'] }}">{{ $prop['name'] }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="unit_number">Unit / Suite Number <span class="text-danger">*</span></label>
-                            <input type="text" id="unit_number" name="unit_number" class="form-control" placeholder="e.g. Suite 101" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="floor_number">Floor Number</label>
-                            <input type="number" id="floor_number" name="floor_number" class="form-control" placeholder="e.g. 1" min="0" value="0">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="category">Category <span class="text-danger">*</span></label>
-                            <select id="category" name="category" class="form-control show-tick" required>
-                                <option value="commercial" selected>Commercial</option>
-                                <option value="residential">Residential</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="type">Unit Type <span class="text-danger">*</span></label>
-                            <input type="text" id="type" name="type" class="form-control" placeholder="e.g. office, apartment, shop" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="rent_amount">Monthly Rent (UGX) <span class="text-danger">*</span></label>
-                            <input type="number" id="rent_amount" name="rent_amount" class="form-control" placeholder="e.g. 1200000" min="100" required>
-                        </div>
-
-                        <button type="submit" class="btn btn-primary btn-block waves-effect">
-                            <i class="zmdi zmdi-plus"></i> Onboard Unit
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-        <!-- Rentable Units DataTable -->
-        <div class="col-lg-8 col-md-12">
+        <!-- Rentable Units DataTable (full width) -->
+        <div class="col-lg-12 col-md-12">
             <div class="card">
                 <div class="header">
                     <h2><strong>Active</strong> Rentable Units</h2>
@@ -169,8 +115,6 @@
     <script src="{{ asset('assets/plugins/jquery-datatable/buttons/buttons.flash.min.js') }}"></script>
     <script src="{{ asset('assets/plugins/jquery-datatable/buttons/buttons.html5.min.js') }}"></script>
     <script src="{{ asset('assets/plugins/jquery-datatable/buttons/buttons.print.min.js') }}"></script>
-    <!-- Bootstrap Select Plugin Js -->
-    <script src="{{ asset('assets/plugins/bootstrap-select/js/bootstrap-select.js') }}"></script>
     <script>
         $(document).ready(function() {
             // Initialize DataTable
@@ -179,34 +123,6 @@
                 buttons: [
                     'copy', 'csv', 'excel', 'pdf', 'print'
                 ]
-            });
-
-            // Initialize Bootstrap Selectpicker
-            if ($.fn.selectpicker) {
-                $('#property_id, #category').selectpicker();
-            }
-
-            // Dynamically update form action when property selection shifts
-            $('#property_id').on('change', function() {
-                var propId = $(this).val();
-                $('#unitForm').attr('action', '/properties/' + propId + '/units');
-            });
-
-            // Prevent double-clicking and convert submit button into loading spinner
-            $('form').on('submit', function() {
-                var $form = $(this);
-                var $btn = $form.find('button[type="submit"]');
-                
-                if ($btn.data('submitting')) {
-                    return false;
-                }
-                
-                $btn.data('submitting', true);
-                $btn.prop('disabled', true);
-                
-                var originalHtml = $btn.html();
-                $btn.data('original-html', originalHtml);
-                $btn.html('<i class="zmdi zmdi-hc-spin zmdi-spinner"></i> Writing unit records...');
             });
         });
     </script>
