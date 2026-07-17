@@ -21,6 +21,9 @@
         </div>
         <div class="col-lg-5 col-md-6 col-sm-12">                
             <button class="btn btn-primary btn-icon float-right right_icon_toggle_btn" type="button"><i class="zmdi zmdi-arrow-right"></i></button>
+            <a href="/properties/create" class="btn btn-success btn-icon btn-round float-right m-r-10" title="Add New Property">
+                <i class="zmdi zmdi-plus"></i> <span class="hidden-sm">Create Property</span>
+            </a>
         </div>
     </div>
 </div>
@@ -41,50 +44,8 @@
     @endif
 
     <div class="row clearfix">
-        <!-- Register Property form -->
-        <div class="col-lg-4 col-md-12">
-            <div class="card">
-                <div class="header">
-                    <h2><strong>Register</strong> Property</h2>
-                </div>
-                <div class="body">
-                    <form action="/properties" method="POST">
-                        @csrf
-                        <div class="form-group">
-                            <label for="name">Property Name <span class="text-danger">*</span></label>
-                            <input type="text" id="name" name="name" class="form-control" placeholder="e.g. Acme Plaza" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="address">Address <span class="text-danger">*</span></label>
-                            <input type="text" id="address" name="address" class="form-control" placeholder="e.g. Plot 14, Kampala Road" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="gps_coordinates">GPS Coordinates</label>
-                            <input type="text" id="gps_coordinates" name="gps_coordinates" class="form-control" placeholder="e.g. 0.3125, 32.5811">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="land_title_number">Land Title Number</label>
-                            <input type="text" id="land_title_number" name="land_title_number" class="form-control" placeholder="e.g. FRVOL-29910-44">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="description">Description</label>
-                            <textarea id="description" name="description" rows="3" class="form-control" placeholder="Optional details..."></textarea>
-                        </div>
-
-                        <button type="submit" class="btn btn-primary btn-block waves-effect">
-                            <i class="zmdi zmdi-plus"></i> Register Property
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-        <!-- Properties list DataTable -->
-        <div class="col-lg-8 col-md-12">
+        <!-- Properties list DataTable (full width) -->
+        <div class="col-lg-12 col-md-12">
             <div class="card">
                 <div class="header">
                     <h2><strong>Registered</strong> Properties</h2>
@@ -138,23 +99,6 @@
                 buttons: [
                     'copy', 'csv', 'excel', 'pdf', 'print'
                 ]
-            });
-
-            // Prevent double-clicking on submit and turn button into spinner loading indicator
-            $('form').on('submit', function() {
-                var $form = $(this);
-                var $btn = $form.find('button[type="submit"]');
-                
-                if ($btn.data('submitting')) {
-                    return false;
-                }
-                
-                $btn.data('submitting', true);
-                $btn.prop('disabled', true);
-                
-                var originalHtml = $btn.html();
-                $btn.data('original-html', originalHtml);
-                $btn.html('<i class="zmdi zmdi-hc-spin zmdi-spinner"></i> Registering property...');
             });
         });
     </script>

@@ -313,6 +313,10 @@ Route::middleware('waka.auth')->group(function () {
         return view('properties', ['properties' => $properties]);
     })->name('properties');
 
+    Route::get('/properties/create', function () {
+        return view('properties_create');
+    });
+
     Route::post('/properties', function () {
         $token = session('auth_token');
         $name = request('name');
