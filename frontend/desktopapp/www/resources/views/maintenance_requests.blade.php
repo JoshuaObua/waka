@@ -33,6 +33,7 @@
         </div>
         <div class="col-lg-5 col-md-6 col-sm-12">                
             <button class="btn btn-primary btn-icon float-right right_icon_toggle_btn" type="button"><i class="zmdi zmdi-arrow-right"></i></button>
+            <a href="/maintenance-requests/create" class="btn btn-info float-right mr-2"><i class="zmdi zmdi-plus"></i> Log Maintenance Request</a>
         </div>
     </div>
 </div>
@@ -53,75 +54,8 @@
     @endif
 
     <div class="row clearfix">
-        <!-- Log Request Form -->
-        <div class="col-lg-4 col-md-12">
-            <div class="card">
-                <div class="header">
-                    <h2><strong>Log</strong> Maintenance Request</h2>
-                </div>
-                <div class="body">
-                    <form action="/maintenance-requests" method="POST">
-                        @csrf
-                        
-                        <div class="form-group">
-                            <label for="unit_id">Select Unit / Property</label>
-                            <select id="unit_id" name="unit_id" class="form-control show-tick">
-                                <option value="" selected>-- Choose Unit (Optional) --</option>
-                                @foreach($units as $u)
-                                    <option value="{{ $u['id'] }}">{{ $u['unit_number'] }} ({{ $u['property_name'] ?? 'Property' }})</option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="tenant_profile_id">Select Tenant Profile</label>
-                            <select id="tenant_profile_id" name="tenant_profile_id" class="form-control show-tick">
-                                <option value="" selected>-- Choose Tenant (Optional) --</option>
-                                @foreach($tenants as $t)
-                                    <option value="{{ $t['id'] }}">
-                                        {{ $t['user']['first_name'] ?? 'Tenant' }} {{ $t['user']['last_name'] ?? '' }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="category">Category <span class="text-danger">*</span></label>
-                            <select id="category" name="category" class="form-control show-tick" required>
-                                <option value="Plumbing" selected>Plumbing</option>
-                                <option value="Electrical">Electrical</option>
-                                <option value="Carpentry">Carpentry</option>
-                                <option value="HVAC">HVAC</option>
-                                <option value="Appliance">Appliance</option>
-                                <option value="General">General</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="priority">Priority Level <span class="text-danger">*</span></label>
-                            <select id="priority" name="priority" class="form-control show-tick" required>
-                                <option value="low">Low</option>
-                                <option value="medium" selected>Medium</option>
-                                <option value="high">High</option>
-                                <option value="emergency">Emergency</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="description">Issue Description <span class="text-danger">*</span></label>
-                            <textarea id="description" name="description" rows="4" class="form-control" placeholder="Describe the defect details here..." required></textarea>
-                        </div>
-
-                        <button type="submit" class="btn btn-primary btn-block waves-effect">
-                            <i class="zmdi zmdi-plus"></i> Log Request
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
-
         <!-- Requests List -->
-        <div class="col-lg-8 col-md-12">
+        <div class="col-lg-12 col-md-12">
             <div class="card">
                 <div class="header">
                     <h2><strong>Logged</strong> Requests</h2>
@@ -169,7 +103,6 @@
                 </div>
             </div>
         </div>
-    </div>
 </div>
 @endsection
 
@@ -182,8 +115,6 @@
     <script src="{{ asset('assets/plugins/jquery-datatable/buttons/buttons.flash.min.js') }}"></script>
     <script src="{{ asset('assets/plugins/jquery-datatable/buttons/buttons.html5.min.js') }}"></script>
     <script src="{{ asset('assets/plugins/jquery-datatable/buttons/buttons.print.min.js') }}"></script>
-    <!-- Bootstrap Select Plugin Js -->
-    <script src="{{ asset('assets/plugins/bootstrap-select/js/bootstrap-select.js') }}"></script>
     <script>
         $(document).ready(function() {
             // Initialize DataTable
@@ -193,28 +124,6 @@
                     'copy', 'csv', 'excel', 'pdf', 'print'
                 ],
                 order: [[5, "desc"]]
-            });
-
-            // Initialize Bootstrap Selectpicker
-            if ($.fn.selectpicker) {
-                $('#unit_id, #tenant_profile_id, #category, #priority').selectpicker();
-            }
-
-            // Prevent double-clicking and convert submit button into loading spinner
-            $('form').on('submit', function() {
-                var $form = $(this);
-                var $btn = $form.find('button[type="submit"]');
-                
-                if ($btn.data('submitting')) {
-                    return false;
-                }
-                
-                $btn.data('submitting', true);
-                $btn.prop('disabled', true);
-                
-                var originalHtml = $btn.html();
-                $btn.data('original-html', originalHtml);
-                $btn.html('<i class="zmdi zmdi-hc-spin zmdi-spinner"></i> Writing request records...');
             });
         });
     </script>

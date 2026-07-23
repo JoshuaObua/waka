@@ -47,11 +47,26 @@
         </div>
         <div class="col-lg-5 col-md-6 col-sm-12">                
             <button class="btn btn-primary btn-icon float-right right_icon_toggle_btn" type="button"><i class="zmdi zmdi-arrow-right"></i></button>
+            <a href="/documents/create" class="btn btn-info float-right mr-2"><i class="zmdi zmdi-upload"></i> Upload Document</a>
         </div>
     </div>
 </div>
 
 <div class="container-fluid">
+    @if(session('success'))
+        <div class="alert alert-success alert-dismissible" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <i class="zmdi zmdi-check-circle"></i> {{ session('success') }}
+        </div>
+    @endif
+
+    @if($errors->any())
+        <div class="alert alert-danger alert-dismissible" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <i class="zmdi zmdi-alert-circle"></i> {{ $errors->first() }}
+        </div>
+    @endif
+
     <!-- Storage KPI widgets -->
     <div class="row clearfix">
         <div class="col-lg-3 col-md-6 col-sm-12">
@@ -92,7 +107,7 @@
     </div>
 
     <div class="row clearfix">
-        <!-- Static Categories Sidebar -->
+        <!-- Folder Navigation Sidebar -->
         <div class="col-lg-3 col-md-12">
             <div class="card">
                 <div class="header">
@@ -117,28 +132,6 @@
                             <span class="badge badge-neutral text-muted">1</span>
                         </li>
                     </ul>
-                </div>
-            </div>
-
-            <!-- Static Upload Form -->
-            <div class="card">
-                <div class="header">
-                    <h2><strong>Upload</strong> Document</h2>
-                </div>
-                <div class="body">
-                    <form action="javascript:void(0);" id="upload-form">
-                        <div class="form-group">
-                            <label for="doc-name">File Name</label>
-                            <input type="text" id="doc-name" class="form-control" placeholder="e.g. ID_Photocopy_Tenant" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="doc-file">Select File</label>
-                            <input type="file" id="doc-file" class="form-control-file border p-2 rounded" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary btn-block waves-effect" id="upload-btn">
-                            <i class="zmdi zmdi-upload"></i> Upload File
-                        </button>
-                    </form>
                 </div>
             </div>
         </div>
@@ -237,36 +230,6 @@
                 buttons: [
                     'copy', 'csv', 'excel', 'pdf', 'print'
                 ]
-            });
-
-            // Prevent double-clicking and convert submit button into loading spinner
-            $('#upload-form').on('submit', function() {
-                var $btn = $('#upload-btn');
-                
-                if ($btn.data('submitting')) {
-                    return false;
-                }
-                
-                $btn.data('submitting', true);
-                $btn.prop('disabled', true);
-                
-                var originalHtml = $btn.html();
-                $btn.data('original-html', originalHtml);
-                $btn.html('<i class="zmdi zmdi-hc-spin zmdi-spinner"></i> Uploading records...');
-
-                setTimeout(function() {
-                    Swal.fire({
-                        title: 'Success!',
-                        text: 'File uploaded successfully (Static Mode).',
-                        icon: 'success'
-                    }).then(function() {
-                        $btn.prop('disabled', false);
-                        $btn.data('submitting', false);
-                        $btn.html(originalHtml);
-                        $('#doc-name').val('');
-                        $('#doc-file').val('');
-                    });
-                }, 1500);
             });
         });
     </script>

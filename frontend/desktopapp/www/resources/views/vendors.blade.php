@@ -23,6 +23,7 @@
         </div>
         <div class="col-lg-5 col-md-6 col-sm-12">                
             <button class="btn btn-primary btn-icon float-right right_icon_toggle_btn" type="button"><i class="zmdi zmdi-arrow-right"></i></button>
+            <a href="/vendors/create" class="btn btn-info float-right mr-2"><i class="zmdi zmdi-plus"></i> Onboard New Vendor</a>
         </div>
     </div>
 </div>
@@ -43,58 +44,8 @@
     @endif
 
     <div class="row clearfix">
-        <!-- Onboard Vendor Form -->
-        <div class="col-lg-4 col-md-12">
-            <div class="card">
-                <div class="header">
-                    <h2><strong>Onboard</strong> Maintenance Vendor</h2>
-                </div>
-                <div class="body">
-                    <form action="/vendors" method="POST">
-                        @csrf
-                        
-                        <div class="form-group">
-                            <label for="business_name">Business Name <span class="text-danger">*</span></label>
-                            <input type="text" id="business_name" name="business_name" class="form-control" placeholder="e.g. Kampala Plumbing Masters Ltd" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="contact_name">Primary Contact Name <span class="text-danger">*</span></label>
-                            <input type="text" id="contact_name" name="contact_name" class="form-control" placeholder="e.g. Andrew Mukasa" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="phone">Phone Number <span class="text-danger">*</span></label>
-                            <input type="text" id="phone" name="phone" class="form-control" placeholder="e.g. +256772112233" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="email">Email Address <span class="text-danger">*</span></label>
-                            <input type="email" id="email" name="email" class="form-control" placeholder="e.g. contact@kplumbing.com" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="category">Specialty Category <span class="text-danger">*</span></label>
-                            <select id="category" name="category" class="form-control show-tick" required>
-                                <option value="Plumbing" selected>Plumbing</option>
-                                <option value="Electrical">Electrical</option>
-                                <option value="Carpentry">Carpentry</option>
-                                <option value="HVAC">HVAC</option>
-                                <option value="Roofing">Roofing</option>
-                                <option value="General">General Maintenance</option>
-                            </select>
-                        </div>
-
-                        <button type="submit" class="btn btn-primary btn-block waves-effect">
-                            <i class="zmdi zmdi-plus"></i> Onboard Vendor
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
-
         <!-- Vendors DataTable -->
-        <div class="col-lg-8 col-md-12">
+        <div class="col-lg-12 col-md-12">
             <div class="card">
                 <div class="header">
                     <h2><strong>Active</strong> Service Providers</h2>
@@ -140,8 +91,6 @@
     <script src="{{ asset('assets/plugins/jquery-datatable/buttons/buttons.flash.min.js') }}"></script>
     <script src="{{ asset('assets/plugins/jquery-datatable/buttons/buttons.html5.min.js') }}"></script>
     <script src="{{ asset('assets/plugins/jquery-datatable/buttons/buttons.print.min.js') }}"></script>
-    <!-- Bootstrap Select Plugin Js -->
-    <script src="{{ asset('assets/plugins/bootstrap-select/js/bootstrap-select.js') }}"></script>
     <script>
         $(document).ready(function() {
             // Initialize DataTable
@@ -150,28 +99,6 @@
                 buttons: [
                     'copy', 'csv', 'excel', 'pdf', 'print'
                 ]
-            });
-
-            // Initialize Bootstrap Selectpicker
-            if ($.fn.selectpicker) {
-                $('#category').selectpicker();
-            }
-
-            // Prevent double-clicking and convert submit button into loading spinner
-            $('form').on('submit', function() {
-                var $form = $(this);
-                var $btn = $form.find('button[type="submit"]');
-                
-                if ($btn.data('submitting')) {
-                    return false;
-                }
-                
-                $btn.data('submitting', true);
-                $btn.prop('disabled', true);
-                
-                var originalHtml = $btn.html();
-                $btn.data('original-html', originalHtml);
-                $btn.html('<i class="zmdi zmdi-hc-spin zmdi-spinner"></i> Writing vendor records...');
             });
         });
     </script>

@@ -29,6 +29,7 @@
         </div>
         <div class="col-lg-5 col-md-6 col-sm-12">                
             <button class="btn btn-primary btn-icon float-right right_icon_toggle_btn" type="button"><i class="zmdi zmdi-arrow-right"></i></button>
+            <a href="/webhooks/create" class="btn btn-info float-right mr-2"><i class="zmdi zmdi-plus"></i> Subscribe Webhook Target</a>
         </div>
     </div>
 </div>
@@ -49,42 +50,8 @@
     @endif
 
     <div class="row clearfix">
-        <!-- Subscribe Form -->
-        <div class="col-lg-4 col-md-12">
-            <div class="card">
-                <div class="header">
-                    <h2><strong>Subscribe</strong> Webhook Target</h2>
-                </div>
-                <div class="body">
-                    <form action="/webhooks" method="POST">
-                        @csrf
-                        
-                        <div class="form-group">
-                            <label for="target_url">Target Listener URL <span class="text-danger">*</span></label>
-                            <input type="url" id="target_url" name="target_url" class="form-control" placeholder="https://api.yourdomain.com/webhooks" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="event_type">Target Notification Event <span class="text-danger">*</span></label>
-                            <select id="event_type" name="event_type" class="form-control show-tick" required>
-                                <option value="invoice.paid" selected>invoice.paid</option>
-                                <option value="invoice.overdue">invoice.overdue</option>
-                                <option value="lease.approved">lease.approved</option>
-                                <option value="lease.terminated">lease.terminated</option>
-                                <option value="maintenance.request_created">maintenance.request_created</option>
-                            </select>
-                        </div>
-
-                        <button type="submit" class="btn btn-primary btn-block waves-effect">
-                            <i class="zmdi zmdi-notifications-active"></i> Create Subscription
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
-
         <!-- Subscriptions DataTable -->
-        <div class="col-lg-8 col-md-12">
+        <div class="col-lg-12 col-md-12">
             <div class="card">
                 <div class="header">
                     <h2><strong>Active</strong> Webhook Hooks</h2>
@@ -124,8 +91,6 @@
     <script src="{{ asset('assets/plugins/jquery-datatable/buttons/buttons.flash.min.js') }}"></script>
     <script src="{{ asset('assets/plugins/jquery-datatable/buttons/buttons.html5.min.js') }}"></script>
     <script src="{{ asset('assets/plugins/jquery-datatable/buttons/buttons.print.min.js') }}"></script>
-    <!-- Bootstrap Select Plugin Js -->
-    <script src="{{ asset('assets/plugins/bootstrap-select/js/bootstrap-select.js') }}"></script>
     <script>
         $(document).ready(function() {
             // Initialize DataTable
@@ -134,28 +99,6 @@
                 buttons: [
                     'copy', 'csv', 'excel', 'pdf', 'print'
                 ]
-            });
-
-            // Initialize Bootstrap Selectpicker
-            if ($.fn.selectpicker) {
-                $('#event_type').selectpicker();
-            }
-
-            // Prevent double-clicking and convert submit button into loading spinner
-            $('form').on('submit', function() {
-                var $form = $(this);
-                var $btn = $form.find('button[type="submit"]');
-                
-                if ($btn.data('submitting')) {
-                    return false;
-                }
-                
-                $btn.data('submitting', true);
-                $btn.prop('disabled', true);
-                
-                var originalHtml = $btn.html();
-                $btn.data('original-html', originalHtml);
-                $btn.html('<i class="zmdi zmdi-hc-spin zmdi-spinner"></i> Saving subscription...');
             });
         });
     </script>

@@ -29,6 +29,7 @@
         </div>
         <div class="col-lg-5 col-md-6 col-sm-12">                
             <button class="btn btn-primary btn-icon float-right right_icon_toggle_btn" type="button"><i class="zmdi zmdi-arrow-right"></i></button>
+            <a href="/utility-tariffs/create" class="btn btn-info float-right mr-2"><i class="zmdi zmdi-plus"></i> Create Utility Tariff</a>
         </div>
     </div>
 </div>
@@ -49,45 +50,8 @@
     @endif
 
     <div class="row clearfix">
-        <!-- Create Tariff Form -->
-        <div class="col-lg-4 col-md-12">
-            <div class="card">
-                <div class="header">
-                    <h2><strong>Create</strong> Tariff Rate</h2>
-                </div>
-                <div class="body">
-                    <form action="/utility-tariffs" method="POST">
-                        @csrf
-                        
-                        <div class="form-group">
-                            <label for="name">Tariff Plan Label <span class="text-danger">*</span></label>
-                            <input type="text" id="name" name="name" class="form-control" placeholder="e.g. Umeme Commercial Grade" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="type">Utility Type <span class="text-danger">*</span></label>
-                            <select id="type" name="type" class="form-control show-tick" required>
-                                <option value="electricity" selected>Electricity (Power)</option>
-                                <option value="water">Water</option>
-                                <option value="gas">Gas</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="rate_per_unit">Rate Per Unit (UGX) <span class="text-danger">*</span></label>
-                            <input type="number" step="0.01" id="rate_per_unit" name="rate_per_unit" class="form-control" placeholder="e.g. 750" min="1" required>
-                        </div>
-
-                        <button type="submit" class="btn btn-primary btn-block waves-effect">
-                            <i class="zmdi zmdi-plus"></i> Create Tariff
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
-
         <!-- Tariffs list DataTable -->
-        <div class="col-lg-8 col-md-12">
+        <div class="col-lg-12 col-md-12">
             <div class="card">
                 <div class="header">
                     <h2><strong>Active</strong> Billing Tariff Formulas</h2>
@@ -129,8 +93,6 @@
     <script src="{{ asset('assets/plugins/jquery-datatable/buttons/buttons.flash.min.js') }}"></script>
     <script src="{{ asset('assets/plugins/jquery-datatable/buttons/buttons.html5.min.js') }}"></script>
     <script src="{{ asset('assets/plugins/jquery-datatable/buttons/buttons.print.min.js') }}"></script>
-    <!-- Bootstrap Select Plugin Js -->
-    <script src="{{ asset('assets/plugins/bootstrap-select/js/bootstrap-select.js') }}"></script>
     <script>
         $(document).ready(function() {
             // Initialize DataTable
@@ -139,28 +101,6 @@
                 buttons: [
                     'copy', 'csv', 'excel', 'pdf', 'print'
                 ]
-            });
-
-            // Initialize Bootstrap Selectpicker
-            if ($.fn.selectpicker) {
-                $('#type').selectpicker();
-            }
-
-            // Prevent double-clicking and convert submit button into loading spinner
-            $('form').on('submit', function() {
-                var $form = $(this);
-                var $btn = $form.find('button[type="submit"]');
-                
-                if ($btn.data('submitting')) {
-                    return false;
-                }
-                
-                $btn.data('submitting', true);
-                $btn.prop('disabled', true);
-                
-                var originalHtml = $btn.html();
-                $btn.data('original-html', originalHtml);
-                $btn.html('<i class="zmdi zmdi-hc-spin zmdi-spinner"></i> Creating tariff plan...');
             });
         });
     </script>

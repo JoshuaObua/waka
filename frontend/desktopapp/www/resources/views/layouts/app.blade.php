@@ -236,6 +236,38 @@
                     </ul>
                 </li>
 
+                <li class="{{ Request::is('gym') || Request::is('sauna') ? 'active open' : '' }}">
+                    <a href="javascript:void(0);" class="menu-toggle"><i class="zmdi zmdi-layers"></i><span>Club Amenities</span></a>
+                    <ul class="ml-menu">
+                        <li class="{{ Request::is('gym') ? 'active' : '' }}"><a href="/gym">Gym Subscriptions</a></li>
+                        <li class="{{ Request::is('sauna') ? 'active' : '' }}"><a href="/sauna">Sauna Management</a></li>
+                    </ul>
+                </li>
+
+                <li class="{{ Request::is('restaurant') ? 'active' : '' }}">
+                    <a href="/restaurant"><i class="zmdi zmdi-store"></i><span>Restaurant & Bar</span></a>
+                </li>
+
+                <li class="{{ Request::is('expenses') ? 'active' : '' }}">
+                    <a href="/expenses"><i class="zmdi zmdi-money-off"></i><span>Expense Management</span></a>
+                </li>
+
+                <li class="{{ Request::is('blogs') ? 'active' : '' }}">
+                    <a href="/blogs"><i class="zmdi zmdi-file-text"></i><span>Blogs CMS</span></a>
+                </li>
+
+                <li class="{{ Request::is('smart-devices') ? 'active' : '' }}">
+                    <a href="/smart-devices"><i class="zmdi zmdi-input-antenna"></i><span>Smart Devices</span></a>
+                </li>
+
+                <li class="{{ Request::is('reports') ? 'active' : '' }}">
+                    <a href="/reports"><i class="zmdi zmdi-trending-up"></i><span>Reports & Analytics</span></a>
+                </li>
+
+                <li class="{{ Request::is('settings') ? 'active' : '' }}">
+                    <a href="/settings"><i class="zmdi zmdi-tune"></i><span>Settings & Security</span></a>
+                </li>
+
                 <li class="{{ Request::is('utility-meters') || Request::is('utility-tariffs') || Request::is('utility-bills') ? 'active open' : '' }}">
                     <a href="javascript:void(0);" class="menu-toggle"><i class="zmdi zmdi-flash"></i><span>Utility Billing</span></a>
                     <ul class="ml-menu">

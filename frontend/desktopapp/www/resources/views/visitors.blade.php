@@ -30,6 +30,7 @@
         </div>
         <div class="col-lg-5 col-md-6 col-sm-12">                
             <button class="btn btn-primary btn-icon float-right right_icon_toggle_btn" type="button"><i class="zmdi zmdi-arrow-right"></i></button>
+            <a href="/visitors/create" class="btn btn-info float-right mr-2"><i class="zmdi zmdi-plus"></i> Pre-Register Visitor</a>
         </div>
     </div>
 </div>
@@ -50,51 +51,8 @@
     @endif
 
     <div class="row clearfix">
-        <!-- Pre-Register Form -->
-        <div class="col-lg-4 col-md-12">
-            <div class="card">
-                <div class="header">
-                    <h2><strong>Pre-Register</strong> Visitor</h2>
-                </div>
-                <div class="body">
-                    <form action="/visitors" method="POST">
-                        @csrf
-                        
-                        <div class="form-group">
-                            <label for="full_name">Visitor Full Name <span class="text-danger">*</span></label>
-                            <input type="text" id="full_name" name="full_name" class="form-control" placeholder="e.g. John Doe" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="phone">Visitor Phone Number <span class="text-danger">*</span></label>
-                            <input type="text" id="phone" name="phone" class="form-control" placeholder="e.g. +256701122334" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="email">Visitor Email Address <span class="text-danger">*</span></label>
-                            <input type="email" id="email" name="email" class="form-control" placeholder="e.g. john.doe@gmail.com" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="host_name">Host Label / Unit Owner <span class="text-danger">*</span></label>
-                            <input type="text" id="host_name" name="host_name" class="form-control" placeholder="e.g. Jane Mugisha" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="purpose">Purpose of Visit <span class="text-danger">*</span></label>
-                            <input type="text" id="purpose" name="purpose" class="form-control" placeholder="e.g. Delivery, Repairs, Meeting" required>
-                        </div>
-
-                        <button type="submit" class="btn btn-primary btn-block waves-effect">
-                            <i class="zmdi zmdi-walk"></i> Pre-Register
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
-
         <!-- Visitors list DataTable -->
-        <div class="col-lg-8 col-md-12">
+        <div class="col-lg-12 col-md-12">
             <div class="card">
                 <div class="header">
                     <h2><strong>Visitor</strong> Records Logs</h2>
@@ -181,8 +139,8 @@
                 ]
             });
 
-            // Prevent double click and show circular progress spinner
-            $('form, .status-form').on('submit', function() {
+            // Prevent double click and show circular progress spinner on actions
+            $('.status-form').on('submit', function() {
                 var $form = $(this);
                 var $btn = $form.find('button[type="submit"]');
                 
@@ -195,7 +153,7 @@
                 
                 var originalHtml = $btn.html();
                 $btn.data('original-html', originalHtml);
-                $btn.html('<i class="zmdi zmdi-hc-spin zmdi-spinner"></i> Saving...');
+                $btn.html('<i class="zmdi zmdi-hc-spin zmdi-spinner"></i>');
             });
         });
     </script>

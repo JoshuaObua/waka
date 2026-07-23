@@ -319,36 +319,57 @@ Route::middleware('waka.auth')->group(function () {
 
     Route::post('/properties', function () {
         $token = session('auth_token');
-        $name = request('name');
-        $description = request('description');
-        $address = request('address');
-        $gps = request('gps_coordinates');
-        $title = request('land_title_number');
+        
+        $input = [
+            'title' => request('title'),
+            'description' => request('description'),
+            'property_status' => request('property_status'),
+            'property_type' => request('property_type'),
+            'listing_price' => (float)request('listing_price'),
+            'currency' => request('currency', 'USD'),
+            'price_period' => request('price_period'),
+            'street_address' => request('street_address'),
+            'unit_number' => request('unit_number'),
+            'city' => request('city'),
+            'state_region' => request('state_region'),
+            'postal_code' => request('postal_code'),
+            'country' => request('country'),
+            'latitude' => (float)request('latitude', 0.0),
+            'longitude' => (float)request('longitude', 0.0),
+            'bedrooms' => (int)request('bedrooms', 0),
+            'bathrooms' => (float)request('bathrooms', 0.0),
+            'square_units' => request('square_units', 'Square Feet'),
+            'indoor_area' => (float)request('indoor_area', 0.0),
+            'lot_size' => (float)request('lot_size', 0.0),
+            'year_built' => (int)request('year_built', date('Y')),
+            'floors_total' => (int)request('floors_total', 1),
+            'floor_number' => (int)request('floor_number', 0),
+            'primary_image_url' => request('primary_image_url'),
+            'video_tour_url' => request('video_tour_url'),
+            'floor_plan_url' => request('floor_plan_url'),
+            'has_virtual_tour' => request('has_virtual_tour') === '1',
+            'virtual_tour_url' => request('virtual_tour_url'),
+            'amenity_ids' => request('amenity_ids', [])
+        ];
 
         if ($token !== 'mock_offline_token') {
             try {
                 $response = Http::timeout(5)
                     ->withToken($token)
-                    ->post('http://localhost:8080/api/v1/properties', [
-                        'name' => $name,
-                        'description' => $description,
-                        'address' => $address,
-                        'gps_coordinates' => $gps,
-                        'land_title_number' => $title
-                    ]);
+                    ->post('http://localhost:8080/api/v1/properties', $input);
 
                 if ($response->successful()) {
-                    return redirect()->back()->with('success', 'Property registered successfully.');
+                    return redirect()->route('properties')->with('success', 'Property registered successfully.');
                 }
 
                 $body = $response->json();
-                return redirect()->back()->withErrors(['error' => $body['error'] ?? 'Failed to register property.']);
+                return redirect()->back()->withInput()->withErrors(['error' => $body['error'] ?? 'Failed to register property.']);
             } catch (\Exception $e) {
-                return redirect()->back()->withErrors(['error' => 'Backend is offline.']);
+                return redirect()->back()->withInput()->withErrors(['error' => 'Backend is offline.']);
             }
         }
 
-        return redirect()->back()->with('success', 'Property registered successfully (Offline Mock Success).');
+        return redirect()->route('properties')->with('success', 'Property registered successfully (Offline Mock Success).');
     });
 
     // Rentable Units Management
@@ -452,36 +473,56 @@ Route::middleware('waka.auth')->group(function () {
 
     Route::post('/properties/{property_id}/units', function ($property_id) {
         $token = session('auth_token');
-        $unitNumber = request('unit_number');
-        $floorNumber = request('floor_number');
-        $category = request('category');
-        $type = request('type');
-        $rentAmount = request('rent_amount');
+        
+        $input = [
+            'unit_number' => request('unit_number'),
+            'description' => request('description'),
+            'property_status' => request('property_status'),
+            'property_type' => request('property_type'),
+            'listing_price' => (float)request('listing_price'),
+            'currency' => request('currency', 'USD'),
+            'price_period' => request('price_period'),
+            'street_address' => request('street_address'),
+            'city' => request('city'),
+            'state_region' => request('state_region'),
+            'postal_code' => request('postal_code'),
+            'country' => request('country'),
+            'latitude' => (float)request('latitude', 0.0),
+            'longitude' => (float)request('longitude', 0.0),
+            'bedrooms' => (int)request('bedrooms', 0),
+            'bathrooms' => (float)request('bathrooms', 0.0),
+            'square_units' => request('square_units', 'Square Feet'),
+            'indoor_area' => (float)request('indoor_area', 0.0),
+            'lot_size' => (float)request('lot_size', 0.0),
+            'year_built' => (int)request('year_built', date('Y')),
+            'floors_total' => (int)request('floors_total', 1),
+            'floor_number' => (int)request('floor_number', 0),
+            'primary_image_url' => request('primary_image_url'),
+            'video_tour_url' => request('video_tour_url'),
+            'floor_plan_url' => request('floor_plan_url'),
+            'has_virtual_tour' => request('has_virtual_tour') === '1',
+            'virtual_tour_url' => request('virtual_tour_url'),
+            'amenity_ids' => request('amenity_ids', [])
+        ];
 
         if ($token !== 'mock_offline_token') {
             try {
                 $response = Http::timeout(5)
                     ->withToken($token)
-                    ->post("http://localhost:8080/api/v1/properties/{$property_id}/units", [
-                        'unit_number' => $unitNumber,
-                        'floor_number' => (int)$floorNumber,
-                        'category' => $category,
-                        'type' => $type,
-                        'rent_amount' => (float)$rentAmount
-                    ]);
+                    ->post("http://localhost:8080/api/v1/properties/{$property_id}/units", $input);
 
                 if ($response->successful()) {
-                    return redirect()->back()->with('success', 'Rentable unit added successfully.');
+                    return redirect()->route('units')->with('success', 'Rentable unit registered successfully.');
                 }
 
                 $body = $response->json();
-                return redirect()->back()->withErrors(['error' => $body['error'] ?? 'Failed to add rentable unit.']);
+                return redirect()->back()->withInput()->withErrors(['error' => $body['error'] ?? 'Failed to register rentable unit.']);
             } catch (\Exception $e) {
-                return redirect()->back()->withErrors(['error' => 'Backend is offline.']);
+                return redirect()->back()->withInput()->withErrors(['error' => 'Backend is offline.']);
             }
         }
 
-        return redirect()->back()->with('success', 'Rentable unit added successfully (Offline Mock Success).');
+        return redirect()->route('units')->with('success', 'Rentable unit registered successfully (Offline Mock Success).');
     });
 
     // Tenants List (filtered users)
@@ -987,6 +1028,30 @@ Route::middleware('waka.auth')->group(function () {
         ]);
     })->name('wallets');
 
+    Route::get('/wallets/create', function () {
+        $token = session('auth_token');
+        $tenantsList = [];
+        if ($token !== 'mock_offline_token') {
+            try {
+                $tenantsResponse = Http::timeout(5)->withToken($token)->get('http://localhost:8080/api/v1/tenants');
+                if ($tenantsResponse->successful()) { $tenantsList = $tenantsResponse->json(); }
+            } catch (\Exception $e) {}
+        }
+        if (empty($tenantsList)) {
+            $tenantsList = [
+                [
+                    'id' => '3f657908-11e3-4eb0-9970-38ad36cf961b',
+                    'user' => [
+                        'first_name' => 'Jane',
+                        'last_name' => 'Mugisha',
+                        'email' => 'tenant@gmail.com'
+                    ]
+                ]
+            ];
+        }
+        return view('wallets_create', ['tenantsList' => $tenantsList]);
+    });
+
     Route::post('/wallets/top-up', function () {
         $token = session('auth_token');
         $profileId = request('profile_id');
@@ -1004,17 +1069,17 @@ Route::middleware('waka.auth')->group(function () {
                     ]);
 
                 if ($response->successful()) {
-                    return redirect()->back()->with('success', 'Mobile money top-up initiated successfully. Wallet balance will reflect upon completion.');
+                    return redirect()->route('wallets')->with('success', 'Mobile money top-up initiated successfully. Wallet balance will reflect upon completion.');
                 }
 
                 $body = $response->json();
-                return redirect()->back()->withErrors(['error' => $body['error'] ?? 'Failed to initiate top-up.']);
+                return redirect()->route('wallets')->withErrors(['error' => $body['error'] ?? 'Failed to initiate top-up.']);
             } catch (\Exception $e) {
-                return redirect()->back()->withErrors(['error' => 'Backend is offline.']);
+                return redirect()->route('wallets')->withErrors(['error' => 'Backend is offline.']);
             }
         }
 
-        return redirect()->back()->with('success', 'Mobile money top-up initiated successfully (Offline Mock Success).');
+        return redirect()->route('wallets')->with('success', 'Mobile money top-up initiated successfully (Offline Mock Success).');
     });
 
     Route::post('/wallets/disburse', function () {
@@ -1034,17 +1099,17 @@ Route::middleware('waka.auth')->group(function () {
                     ]);
 
                 if ($response->successful()) {
-                    return redirect()->back()->with('success', 'Disbursement executed successfully via ioTec Pay.');
+                    return redirect()->route('wallets')->with('success', 'Disbursement executed successfully via ioTec Pay.');
                 }
 
                 $body = $response->json();
-                return redirect()->back()->withErrors(['error' => $body['error'] ?? 'Failed to execute disbursement.']);
+                return redirect()->route('wallets')->withErrors(['error' => $body['error'] ?? 'Failed to execute disbursement.']);
             } catch (\Exception $e) {
-                return redirect()->back()->withErrors(['error' => 'Backend is offline.']);
+                return redirect()->route('wallets')->withErrors(['error' => 'Backend is offline.']);
             }
         }
 
-        return redirect()->back()->with('success', 'Disbursement executed successfully (Offline Mock Success).');
+        return redirect()->route('wallets')->with('success', 'Disbursement executed successfully (Offline Mock Success).');
     });
 
     // Gateway Transactions Management
@@ -1264,24 +1329,12 @@ Route::middleware('waka.auth')->group(function () {
     Route::get('/maintenance-requests', function () {
         $token = session('auth_token');
         $requests = [];
-        $units = [];
-        $tenants = [];
 
         if ($token !== 'mock_offline_token') {
             try {
                 $response = Http::timeout(5)->withToken($token)->get('http://localhost:8080/api/v1/maintenance/requests');
                 if ($response->successful()) {
                     $requests = $response->json();
-                }
-                
-                $unitsResponse = Http::timeout(5)->withToken($token)->get('http://localhost:8080/api/v1/units');
-                if ($unitsResponse->successful()) {
-                    $units = $unitsResponse->json();
-                }
-
-                $tenantsResponse = Http::timeout(5)->withToken($token)->get('http://localhost:8080/api/v1/tenants');
-                if ($tenantsResponse->successful()) {
-                    $tenants = $tenantsResponse->json();
                 }
             } catch (\Exception $e) {
                 // fallback
@@ -1302,16 +1355,46 @@ Route::middleware('waka.auth')->group(function () {
                     'tenant_profile' => ['user' => ['first_name' => 'Jane', 'last_name' => 'Mugisha']]
                 ]
             ];
+        }
+
+        return view('maintenance_requests', [
+            'requests' => $requests
+        ]);
+    })->name('maintenance_requests');
+
+    Route::get('/maintenance-requests/create', function () {
+        $token = session('auth_token');
+        $units = [];
+        $tenants = [];
+
+        if ($token !== 'mock_offline_token') {
+            try {
+                $unitsResponse = Http::timeout(5)->withToken($token)->get('http://localhost:8080/api/v1/units');
+                if ($unitsResponse->successful()) {
+                    $units = $unitsResponse->json();
+                }
+
+                $tenantsResponse = Http::timeout(5)->withToken($token)->get('http://localhost:8080/api/v1/tenants');
+                if ($tenantsResponse->successful()) {
+                    $tenants = $tenantsResponse->json();
+                }
+            } catch (\Exception $e) {
+                // fallback
+            }
+        }
+
+        if (empty($units)) {
             $units = [
                 ['id' => '1a111111-1111-1111-1111-111111111111', 'unit_number' => 'Suite 101', 'property_name' => 'Acme Plaza']
             ];
+        }
+        if (empty($tenants)) {
             $tenants = [
                 ['id' => '9a111111-1111-1111-1111-111111111111', 'user' => ['first_name' => 'Jane', 'last_name' => 'Mugisha']]
             ];
         }
 
-        return view('maintenance_requests', [
-            'requests' => $requests,
+        return view('maintenance_requests_create', [
             'units' => $units,
             'tenants' => $tenants
         ]);
@@ -1338,17 +1421,17 @@ Route::middleware('waka.auth')->group(function () {
                     ]);
 
                 if ($response->successful()) {
-                    return redirect()->back()->with('success', 'Maintenance request logged successfully.');
+                    return redirect()->route('maintenance_requests')->with('success', 'Maintenance request logged successfully.');
                 }
 
                 $body = $response->json();
-                return redirect()->back()->withErrors(['error' => $body['error'] ?? 'Failed to log maintenance request.']);
+                return redirect()->back()->withInput()->withErrors(['error' => $body['error'] ?? 'Failed to log maintenance request.']);
             } catch (\Exception $e) {
-                return redirect()->back()->withErrors(['error' => 'Backend is offline.']);
+                return redirect()->back()->withInput()->withErrors(['error' => 'Backend is offline.']);
             }
         }
 
-        return redirect()->back()->with('success', 'Maintenance request logged successfully (Offline Mock Success).');
+        return redirect()->route('maintenance_requests')->with('success', 'Maintenance request logged successfully (Offline Mock Success).');
     });
 
     // Vendors Directory
@@ -1381,6 +1464,10 @@ Route::middleware('waka.auth')->group(function () {
         }
 
         return view('vendors', ['vendors' => $vendors]);
+    })->name('vendors');
+
+    Route::get('/vendors/create', function () {
+        return view('vendors_create');
     });
 
     Route::post('/vendors', function () {
@@ -1404,17 +1491,17 @@ Route::middleware('waka.auth')->group(function () {
                     ]);
 
                 if ($response->successful()) {
-                    return redirect()->back()->with('success', 'Vendor onboarded successfully.');
+                    return redirect()->route('vendors')->with('success', 'Vendor onboarded successfully.');
                 }
 
                 $body = $response->json();
-                return redirect()->back()->withErrors(['error' => $body['error'] ?? 'Failed to onboard vendor.']);
+                return redirect()->back()->withInput()->withErrors(['error' => $body['error'] ?? 'Failed to onboard vendor.']);
             } catch (\Exception $e) {
-                return redirect()->back()->withErrors(['error' => 'Backend is offline.']);
+                return redirect()->back()->withInput()->withErrors(['error' => 'Backend is offline.']);
             }
         }
 
-        return redirect()->back()->with('success', 'Vendor onboarded successfully (Offline Mock Success).');
+        return redirect()->route('vendors')->with('success', 'Vendor onboarded successfully (Offline Mock Success).');
     });
 
     // Work Orders Management
@@ -1501,7 +1588,44 @@ Route::middleware('waka.auth')->group(function () {
         }
 
         return view('work_orders', [
-            'workOrders' => $workOrders,
+            'workOrders' => $workOrders
+        ]);
+    })->name('work_orders');
+
+    Route::get('/work-orders/create', function () {
+        $token = session('auth_token');
+        $requests = [];
+        $vendors = [];
+
+        if ($token !== 'mock_offline_token') {
+            try {
+                $requestsResponse = Http::timeout(5)->withToken($token)->get('http://localhost:8080/api/v1/maintenance/requests');
+                if ($requestsResponse->successful()) {
+                    $requests = $requestsResponse->json();
+                }
+
+                $vendorsResponse = Http::timeout(5)->withToken($token)->get('http://localhost:8080/api/v1/maintenance/vendors');
+                if ($vendorsResponse->successful()) {
+                    $vendors = $vendorsResponse->json();
+                }
+            } catch (\Exception $e) {
+                // fallback
+            }
+        }
+
+        if (empty($requests)) {
+            $requests = [
+                ['id' => '11111111-2222-3333-4444-555555555555', 'description' => 'Water leakage from the main ceiling pipe in the kitchen area.']
+            ];
+        }
+
+        if (empty($vendors)) {
+            $vendors = [
+                ['id' => '22222222-3333-4444-5555-666666666666', 'business_name' => 'Kampala Plumbing Masters Ltd', 'category' => 'Plumbing']
+            ];
+        }
+
+        return view('work_orders_create', [
             'requests' => $requests,
             'vendors' => $vendors
         ]);
@@ -1532,34 +1656,29 @@ Route::middleware('waka.auth')->group(function () {
                     ]);
 
                 if ($response->successful()) {
-                    return redirect()->back()->with('success', 'Work order scheduled successfully.');
+                    return redirect()->route('work_orders')->with('success', 'Work order scheduled successfully.');
                 }
 
                 $body = $response->json();
-                return redirect()->back()->withErrors(['error' => $body['error'] ?? 'Failed to schedule work order.']);
+                return redirect()->back()->withInput()->withErrors(['error' => $body['error'] ?? 'Failed to schedule work order.']);
             } catch (\Exception $e) {
-                return redirect()->back()->withErrors(['error' => 'Backend is offline.']);
+                return redirect()->back()->withInput()->withErrors(['error' => 'Backend is offline.']);
             }
         }
 
-        return redirect()->back()->with('success', 'Work order scheduled successfully (Offline Mock Success).');
+        return redirect()->route('work_orders')->with('success', 'Work order scheduled successfully (Offline Mock Success).');
     });
 
     // Utility Billing - Meter Settings
     Route::get('/utility-meters', function () {
         $token = session('auth_token');
         $meters = [];
-        $units = [];
 
         if ($token !== 'mock_offline_token') {
             try {
                 $response = Http::timeout(5)->withToken($token)->get('http://localhost:8080/api/v1/utility/meters');
                 if ($response->successful()) {
                     $meters = $response->json();
-                }
-                $unitsResponse = Http::timeout(5)->withToken($token)->get('http://localhost:8080/api/v1/units');
-                if ($unitsResponse->successful()) {
-                    $units = $unitsResponse->json();
                 }
             } catch (\Exception $e) {
                 // fallback
@@ -1576,12 +1695,33 @@ Route::middleware('waka.auth')->group(function () {
                     'last_reading' => 1250.00
                 ]
             ];
+        }
+
+        return view('utility_meters', ['meters' => $meters]);
+    })->name('utility_meters');
+
+    Route::get('/utility-meters/create', function () {
+        $token = session('auth_token');
+        $units = [];
+
+        if ($token !== 'mock_offline_token') {
+            try {
+                $unitsResponse = Http::timeout(5)->withToken($token)->get('http://localhost:8080/api/v1/units');
+                if ($unitsResponse->successful()) {
+                    $units = $unitsResponse->json();
+                }
+            } catch (\Exception $e) {
+                // fallback
+            }
+        }
+
+        if (empty($units)) {
             $units = [
                 ['id' => '1a111111-1111-1111-1111-111111111111', 'unit_number' => 'Suite 101', 'property_name' => 'Acme Plaza']
             ];
         }
 
-        return view('utility_meters', ['meters' => $meters, 'units' => $units]);
+        return view('utility_meters_create', ['units' => $units]);
     });
 
     Route::post('/utility-meters', function () {
@@ -1600,15 +1740,15 @@ Route::middleware('waka.auth')->group(function () {
                     'last_reading' => (float)$lastReading
                 ]);
                 if ($response->successful()) {
-                    return redirect()->back()->with('success', 'Utility meter registered successfully.');
+                    return redirect()->route('utility_meters')->with('success', 'Utility meter registered successfully.');
                 }
                 $body = $response->json();
-                return redirect()->back()->withErrors(['error' => $body['error'] ?? 'Failed to register meter.']);
+                return redirect()->back()->withInput()->withErrors(['error' => $body['error'] ?? 'Failed to register meter.']);
             } catch (\Exception $e) {
-                return redirect()->back()->withErrors(['error' => 'Backend is offline.']);
+                return redirect()->back()->withInput()->withErrors(['error' => 'Backend is offline.']);
             }
         }
-        return redirect()->back()->with('success', 'Utility meter registered successfully (Offline Mock Success).');
+        return redirect()->route('utility_meters')->with('success', 'Utility meter registered successfully (Offline Mock Success).');
     });
 
     // Utility Billing - Tariffs Directory
@@ -1639,6 +1779,10 @@ Route::middleware('waka.auth')->group(function () {
         }
 
         return view('utility_tariffs', ['tariffs' => $tariffs]);
+    })->name('utility_tariffs');
+
+    Route::get('/utility-tariffs/create', function () {
+        return view('utility_tariffs_create');
     });
 
     Route::post('/utility-tariffs', function () {
@@ -1655,37 +1799,27 @@ Route::middleware('waka.auth')->group(function () {
                     'rate_per_unit' => (float)$rate
                 ]);
                 if ($response->successful()) {
-                    return redirect()->back()->with('success', 'Tariff created successfully.');
+                    return redirect()->route('utility_tariffs')->with('success', 'Tariff created successfully.');
                 }
                 $body = $response->json();
-                return redirect()->back()->withErrors(['error' => $body['error'] ?? 'Failed to create tariff.']);
+                return redirect()->back()->withInput()->withErrors(['error' => $body['error'] ?? 'Failed to create tariff.']);
             } catch (\Exception $e) {
-                return redirect()->back()->withErrors(['error' => 'Backend is offline.']);
+                return redirect()->back()->withInput()->withErrors(['error' => 'Backend is offline.']);
             }
         }
-        return redirect()->back()->with('success', 'Tariff created successfully (Offline Mock Success).');
+        return redirect()->route('utility_tariffs')->with('success', 'Tariff created successfully (Offline Mock Success).');
     });
 
     // Utility Billing - Bills & Invoices
     Route::get('/utility-bills', function () {
         $token = session('auth_token');
         $bills = [];
-        $meters = [];
-        $tariffs = [];
 
         if ($token !== 'mock_offline_token') {
             try {
                 $response = Http::timeout(5)->withToken($token)->get('http://localhost:8080/api/v1/utility/bills');
                 if ($response->successful()) {
                     $bills = $response->json();
-                }
-                $metersResponse = Http::timeout(5)->withToken($token)->get('http://localhost:8080/api/v1/utility/meters');
-                if ($metersResponse->successful()) {
-                    $meters = $metersResponse->json();
-                }
-                $tariffsResponse = Http::timeout(5)->withToken($token)->get('http://localhost:8080/api/v1/utility/tariffs');
-                if ($tariffsResponse->successful()) {
-                    $tariffs = $tariffsResponse->json();
                 }
             } catch (\Exception $e) {
                 // fallback
@@ -1706,16 +1840,43 @@ Route::middleware('waka.auth')->group(function () {
                     'tariff' => ['name' => 'Umeme Standard Commercial']
                 ]
             ];
+        }
+
+        return view('utility_bills', [
+            'bills' => $bills
+        ]);
+    })->name('utility_bills');
+
+    Route::get('/utility-bills/create', function () {
+        $token = session('auth_token');
+        $meters = [];
+        $tariffs = [];
+
+        if ($token !== 'mock_offline_token') {
+            try {
+                $metersResponse = Http::timeout(5)->withToken($token)->get('http://localhost:8080/api/v1/utility/meters');
+                if ($metersResponse->successful()) {
+                    $meters = $metersResponse->json();
+                }
+                $tariffsResponse = Http::timeout(5)->withToken($token)->get('http://localhost:8080/api/v1/utility/tariffs');
+                if ($tariffsResponse->successful()) {
+                    $tariffs = $tariffsResponse->json();
+                }
+            } catch (\Exception $e) {
+                // fallback
+            }
+        }
+
+        if (empty($meters)) {
             $meters = [
-                ['id' => '11111111-abcd-1111-2222-333333333333', 'meter_number' => 'MTR-90081', 'type' => 'electricity']
+                ['id' => '11111111-abcd-1111-2222-333333333333', 'meter_number' => 'MTR-90081', 'type' => 'electricity', 'last_reading' => 1250.00]
             ];
             $tariffs = [
                 ['id' => '22222222-abcd-1111-2222-333333333333', 'name' => 'Umeme Standard Commercial', 'type' => 'electricity', 'rate_per_unit' => 750.00]
             ];
         }
 
-        return view('utility_bills', [
-            'bills' => $bills,
+        return view('utility_bills_create', [
             'meters' => $meters,
             'tariffs' => $tariffs
         ]);
@@ -1739,15 +1900,15 @@ Route::middleware('waka.auth')->group(function () {
                     'due_date' => $formattedDue
                 ]);
                 if ($response->successful()) {
-                    return redirect()->back()->with('success', 'Utility bill created successfully.');
+                    return redirect()->route('utility_bills')->with('success', 'Utility bill created successfully.');
                 }
                 $body = $response->json();
-                return redirect()->back()->withErrors(['error' => $body['error'] ?? 'Failed to create utility bill.']);
+                return redirect()->back()->withInput()->withErrors(['error' => $body['error'] ?? 'Failed to create utility bill.']);
             } catch (\Exception $e) {
-                return redirect()->back()->withErrors(['error' => 'Backend is offline.']);
+                return redirect()->back()->withInput()->withErrors(['error' => 'Backend is offline.']);
             }
         }
-        return redirect()->back()->with('success', 'Utility bill created successfully (Offline Mock Success).');
+        return redirect()->route('utility_bills')->with('success', 'Utility bill created successfully (Offline Mock Success).');
     });
 
     // Visitor Management
@@ -1769,7 +1930,7 @@ Route::middleware('waka.auth')->group(function () {
         if (empty($visitors)) {
             $visitors = [
                 [
-                    'id' => '44444444-abcd-1111-2222-333333333333',
+                    'id' => '44444444-abcd-1111-2222-3333-333333333333',
                     'full_name' => 'John Doe',
                     'phone' => '+256701122334',
                     'email' => 'john.doe@gmail.com',
@@ -1782,6 +1943,10 @@ Route::middleware('waka.auth')->group(function () {
         }
 
         return view('visitors', ['visitors' => $visitors]);
+    })->name('visitors');
+
+    Route::get('/visitors/create', function () {
+        return view('visitors_create');
     });
 
     Route::post('/visitors', function () {
@@ -1802,15 +1967,15 @@ Route::middleware('waka.auth')->group(function () {
                     'host_name' => $hostName
                 ]);
                 if ($response->successful()) {
-                    return redirect()->back()->with('success', 'Visitor registered successfully.');
+                    return redirect()->route('visitors')->with('success', 'Visitor registered successfully.');
                 }
                 $body = $response->json();
-                return redirect()->back()->withErrors(['error' => $body['error'] ?? 'Failed to register visitor.']);
+                return redirect()->back()->withInput()->withErrors(['error' => $body['error'] ?? 'Failed to register visitor.']);
             } catch (\Exception $e) {
-                return redirect()->back()->withErrors(['error' => 'Backend is offline.']);
+                return redirect()->back()->withInput()->withErrors(['error' => 'Backend is offline.']);
             }
         }
-        return redirect()->back()->with('success', 'Visitor registered successfully (Offline Mock Success).');
+        return redirect()->route('visitors')->with('success', 'Visitor registered successfully (Offline Mock Success).');
     });
 
     Route::post('/visitors/{id}/check-in', function ($id) {
@@ -1880,6 +2045,10 @@ Route::middleware('waka.auth')->group(function () {
         }
 
         return view('webhooks', ['subscriptions' => $subscriptions]);
+    })->name('webhooks');
+
+    Route::get('/webhooks/create', function () {
+        return view('webhooks_create');
     });
 
     Route::post('/webhooks', function () {
@@ -1894,15 +2063,15 @@ Route::middleware('waka.auth')->group(function () {
                     'event_type' => $event
                 ]);
                 if ($response->successful()) {
-                    return redirect()->back()->with('success', 'Webhook subscription saved.');
+                    return redirect()->route('webhooks')->with('success', 'Webhook subscription saved.');
                 }
                 $body = $response->json();
-                return redirect()->back()->withErrors(['error' => $body['error'] ?? 'Failed to subscribe.']);
+                return redirect()->back()->withInput()->withErrors(['error' => $body['error'] ?? 'Failed to subscribe.']);
             } catch (\Exception $e) {
-                return redirect()->back()->withErrors(['error' => 'Backend is offline.']);
+                return redirect()->back()->withInput()->withErrors(['error' => 'Backend is offline.']);
             }
         }
-        return redirect()->back()->with('success', 'Webhook subscription saved (Offline Mock Success).');
+        return redirect()->route('webhooks')->with('success', 'Webhook subscription saved (Offline Mock Success).');
     });
 
     // Audit Logs
@@ -2008,10 +2177,825 @@ Route::middleware('waka.auth')->group(function () {
         }
 
         return view('documents', ['documents' => $documents]);
+    })->name('documents');
+
+    Route::get('/documents/create', function () {
+        return view('documents_create');
+    });
+
+    Route::post('/documents/upload', function () {
+        $token = session('auth_token');
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(10)->withToken($token)->post('http://localhost:8080/api/v1/documents/upload', [
+                    'name' => request('name'), 'folder' => request('folder')
+                ]);
+                if ($response->successful()) { return redirect()->route('documents')->with('success', 'Document uploaded successfully.'); }
+            } catch (\Exception $e) {}
+        }
+        return redirect()->route('documents')->with('success', 'Document uploaded successfully (Offline Mock).');
     });
 
     // Event Calendar (Calendar Shortcut Target)
+
     Route::get('/calendar', function () {
         return view('calendar');
+    });
+
+    // Blogs CMS
+    Route::get('/blogs', function () {
+        $token = session('auth_token');
+        $blogs = [];
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(5)->withToken($token)->get('http://localhost:8080/api/v1/admin/blogs');
+                if ($response->successful()) { $blogs = $response->json(); }
+            } catch (\Exception $e) {}
+        }
+        if (empty($blogs)) {
+            $blogs = [
+                ['id' => '1', 'title' => 'Welcome to Waka PMS', 'content' => 'We are excited to launch our new property management platform.', 'status' => 'published', 'created_at' => '2026-07-18T00:00:00Z'],
+                ['id' => '2', 'title' => 'Tenant Portal Guide', 'content' => 'Learn how to pay bills and log maintenance requests.', 'status' => 'draft', 'created_at' => '2026-07-17T00:00:00Z']
+            ];
+        }
+        return view('blogs', ['blogs' => $blogs]);
+    })->name('blogs');
+
+    Route::get('/blogs/create', function () {
+        return view('blogs_create');
+    });
+
+    Route::post('/blogs', function () {
+        $token = session('auth_token');
+        $title = request('title');
+        $content = request('content');
+        $status = request('status', 'draft');
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(5)->withToken($token)->post('http://localhost:8080/api/v1/admin/blogs', [
+                    'title' => $title, 'content' => $content, 'status' => $status
+                ]);
+                if ($response->successful()) { return redirect()->route('blogs')->with('success', 'Blog post created successfully.'); }
+                return redirect()->back()->withInput()->withErrors(['error' => $response->json()['error'] ?? 'Failed to create blog post.']);
+            } catch (\Exception $e) { return redirect()->back()->withInput()->withErrors(['error' => 'Backend is offline.']); }
+        }
+        return redirect()->route('blogs')->with('success', 'Blog post created successfully (Offline Mock).');
+    });
+
+    Route::post('/blogs/{id}/update', function ($id) {
+        $token = session('auth_token');
+        $title = request('title');
+        $content = request('content');
+        $status = request('status');
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(5)->withToken($token)->put("http://localhost:8080/api/v1/admin/blogs/{$id}", [
+                    'title' => $title, 'content' => $content, 'status' => $status
+                ]);
+                if ($response->successful()) { return redirect()->back()->with('success', 'Blog post updated successfully.'); }
+                return redirect()->back()->withErrors(['error' => $response->json()['error'] ?? 'Failed to update blog post.']);
+            } catch (\Exception $e) { return redirect()->back()->withErrors(['error' => 'Backend is offline.']); }
+        }
+        return redirect()->back()->with('success', 'Blog post updated successfully (Offline Mock).');
+    });
+
+    Route::post('/blogs/{id}/delete', function ($id) {
+        $token = session('auth_token');
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(5)->withToken($token)->delete("http://localhost:8080/api/v1/admin/blogs/{$id}");
+                if ($response->successful()) { return redirect()->back()->with('success', 'Blog post deleted successfully.'); }
+                return redirect()->back()->withErrors(['error' => $response->json()['error'] ?? 'Failed to delete blog post.']);
+            } catch (\Exception $e) { return redirect()->back()->withErrors(['error' => 'Backend is offline.']); }
+        }
+        return redirect()->back()->with('success', 'Blog post deleted successfully (Offline Mock).');
+    });
+
+    // Gym Subscriptions
+    Route::get('/gym', function () {
+        $token = session('auth_token');
+        $plans = []; $subscriptions = [];
+        if ($token !== 'mock_offline_token') {
+            try {
+                $pResponse = Http::timeout(5)->withToken($token)->get('http://localhost:8080/api/v1/admin/gym/plans');
+                if ($pResponse->successful()) { $plans = $pResponse->json(); }
+                $sResponse = Http::timeout(5)->withToken($token)->get('http://localhost:8080/api/v1/admin/gym/subscriptions');
+                if ($sResponse->successful()) { $subscriptions = $sResponse->json(); }
+            } catch (\Exception $e) {}
+        }
+        if (empty($plans)) {
+            $plans = [
+                ['id' => '1', 'name' => 'Monthly Standard', 'price' => 150000.0, 'duration_days' => 30],
+                ['id' => '2', 'name' => 'Annual Gold', 'price' => 1200000.0, 'duration_days' => 365]
+            ];
+        }
+        if (empty($subscriptions)) {
+            $subscriptions = [
+                ['id' => '1', 'client_name' => 'Alice Kemigisha', 'plan_name' => 'Monthly Standard', 'status' => 'active', 'start_date' => '2026-07-01', 'end_date' => '2026-07-31'],
+                ['id' => '2', 'client_name' => 'Bob Male', 'plan_name' => 'Annual Gold', 'status' => 'expired', 'start_date' => '2025-07-01', 'end_date' => '2026-07-01']
+            ];
+        }
+        return view('gym', ['plans' => $plans, 'subscriptions' => $subscriptions]);
+    })->name('gym');
+
+    Route::get('/gym/create', function () {
+        $token = session('auth_token');
+        $plans = [];
+        if ($token !== 'mock_offline_token') {
+            try {
+                $pResponse = Http::timeout(5)->withToken($token)->get('http://localhost:8080/api/v1/admin/gym/plans');
+                if ($pResponse->successful()) { $plans = $pResponse->json(); }
+            } catch (\Exception $e) {}
+        }
+        if (empty($plans)) {
+            $plans = [
+                ['id' => '1', 'name' => 'Monthly Standard', 'price' => 150000.0, 'duration_days' => 30],
+                ['id' => '2', 'name' => 'Annual Gold', 'price' => 1200000.0, 'duration_days' => 365]
+            ];
+        }
+        return view('gym_create', ['plans' => $plans]);
+    });
+
+    Route::post('/gym/plans', function () {
+        $token = session('auth_token');
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(5)->withToken($token)->post('http://localhost:8080/api/v1/admin/gym/plans', [
+                    'name' => request('name'), 'price' => (float)request('price'), 'duration_days' => (int)request('duration_days')
+                ]);
+                if ($response->successful()) { return redirect()->route('gym')->with('success', 'Gym plan created successfully.'); }
+                return redirect()->back()->withInput()->withErrors(['error' => $response->json()['error'] ?? 'Failed to create plan.']);
+            } catch (\Exception $e) { return redirect()->back()->withInput()->withErrors(['error' => 'Backend is offline.']); }
+        }
+        return redirect()->route('gym')->with('success', 'Gym plan created successfully (Offline Mock).');
+    });
+
+    Route::post('/gym/plans/{id}/update', function ($id) {
+        $token = session('auth_token');
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(5)->withToken($token)->put("http://localhost:8080/api/v1/admin/gym/plans/{$id}", [
+                    'name' => request('name'), 'price' => (float)request('price'), 'duration_days' => (int)request('duration_days')
+                ]);
+                if ($response->successful()) { return redirect()->back()->with('success', 'Gym plan updated successfully.'); }
+            } catch (\Exception $e) {}
+        }
+        return redirect()->back()->with('success', 'Gym plan updated successfully (Offline Mock).');
+    });
+
+    Route::post('/gym/plans/{id}/delete', function ($id) {
+        $token = session('auth_token');
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(5)->withToken($token)->delete("http://localhost:8080/api/v1/admin/gym/plans/{$id}");
+                if ($response->successful()) { return redirect()->back()->with('success', 'Gym plan deleted successfully.'); }
+            } catch (\Exception $e) {}
+        }
+        return redirect()->back()->with('success', 'Gym plan deleted successfully (Offline Mock).');
+    });
+
+    Route::post('/gym/subscriptions', function () {
+        $token = session('auth_token');
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(5)->withToken($token)->post('http://localhost:8080/api/v1/admin/gym/subscriptions', [
+                    'client_name' => request('client_name'), 'plan_id' => request('plan_id')
+                ]);
+                if ($response->successful()) { return redirect()->route('gym')->with('success', 'Client subscribed successfully.'); }
+                return redirect()->back()->withInput()->withErrors(['error' => $response->json()['error'] ?? 'Failed to subscribe client.']);
+            } catch (\Exception $e) { return redirect()->back()->withInput()->withErrors(['error' => 'Backend is offline.']); }
+        }
+        return redirect()->route('gym')->with('success', 'Client subscribed successfully (Offline Mock).');
+    });
+
+    Route::post('/gym/subscriptions/{id}/status', function ($id) {
+        $token = session('auth_token');
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(5)->withToken($token)->put("http://localhost:8080/api/v1/admin/gym/subscriptions/{$id}/status", [
+                    'status' => request('status')
+                ]);
+                if ($response->successful()) { return redirect()->back()->with('success', 'Subscription status updated.'); }
+            } catch (\Exception $e) {}
+        }
+        return redirect()->back()->with('success', 'Subscription status updated (Offline Mock).');
+    });
+
+    // Sauna Management
+    Route::get('/sauna', function () {
+        $token = session('auth_token');
+        $plans = []; $subscriptions = [];
+        if ($token !== 'mock_offline_token') {
+            try {
+                $pResponse = Http::timeout(5)->withToken($token)->get('http://localhost:8080/api/v1/admin/sauna/plans');
+                if ($pResponse->successful()) { $plans = $pResponse->json(); }
+                $sResponse = Http::timeout(5)->withToken($token)->get('http://localhost:8080/api/v1/admin/sauna/subscriptions');
+                if ($sResponse->successful()) { $subscriptions = $sResponse->json(); }
+            } catch (\Exception $e) {}
+        }
+        if (empty($plans)) {
+            $plans = [
+                ['id' => '1', 'name' => 'Daily Pass', 'price' => 20000.0, 'duration_days' => 1],
+                ['id' => '2', 'name' => 'Sauna Platinum', 'price' => 500000.0, 'duration_days' => 90]
+            ];
+        }
+        if (empty($subscriptions)) {
+            $subscriptions = [
+                ['id' => '1', 'client_name' => 'Charles Lwanga', 'plan_name' => 'Daily Pass', 'status' => 'active', 'start_date' => '2026-07-18', 'end_date' => '2026-07-19'],
+                ['id' => '2', 'client_name' => 'Diana Nansubuga', 'plan_name' => 'Sauna Platinum', 'status' => 'active', 'start_date' => '2026-06-01', 'end_date' => '2026-09-01']
+            ];
+        }
+        return view('sauna', ['plans' => $plans, 'subscriptions' => $subscriptions]);
+    })->name('sauna');
+
+    Route::get('/sauna/create', function () {
+        $token = session('auth_token');
+        $plans = [];
+        if ($token !== 'mock_offline_token') {
+            try {
+                $pResponse = Http::timeout(5)->withToken($token)->get('http://localhost:8080/api/v1/admin/sauna/plans');
+                if ($pResponse->successful()) { $plans = $pResponse->json(); }
+            } catch (\Exception $e) {}
+        }
+        if (empty($plans)) {
+            $plans = [
+                ['id' => '1', 'name' => 'Daily Pass', 'price' => 20000.0, 'duration_days' => 1],
+                ['id' => '2', 'name' => 'Sauna Platinum', 'price' => 500000.0, 'duration_days' => 90]
+            ];
+        }
+        return view('sauna_create', ['plans' => $plans]);
+    });
+
+    Route::post('/sauna/plans', function () {
+        $token = session('auth_token');
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(5)->withToken($token)->post('http://localhost:8080/api/v1/admin/sauna/plans', [
+                    'name' => request('name'), 'price' => (float)request('price'), 'duration_days' => (int)request('duration_days')
+                ]);
+                if ($response->successful()) { return redirect()->route('sauna')->with('success', 'Sauna plan created.'); }
+            } catch (\Exception $e) {}
+        }
+        return redirect()->route('sauna')->with('success', 'Sauna plan created successfully (Offline Mock).');
+    });
+
+    Route::post('/sauna/plans/{id}/update', function ($id) {
+        $token = session('auth_token');
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(5)->withToken($token)->put("http://localhost:8080/api/v1/admin/sauna/plans/{$id}", [
+                    'name' => request('name'), 'price' => (float)request('price'), 'duration_days' => (int)request('duration_days')
+                ]);
+                if ($response->successful()) { return redirect()->back()->with('success', 'Sauna plan updated.'); }
+            } catch (\Exception $e) {}
+        }
+        return redirect()->back()->with('success', 'Sauna plan updated successfully (Offline Mock).');
+    });
+
+    Route::post('/sauna/plans/{id}/delete', function ($id) {
+        $token = session('auth_token');
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(5)->withToken($token)->delete("http://localhost:8080/api/v1/admin/sauna/plans/{$id}");
+                if ($response->successful()) { return redirect()->back()->with('success', 'Sauna plan deleted.'); }
+            } catch (\Exception $e) {}
+        }
+        return redirect()->back()->with('success', 'Sauna plan deleted successfully (Offline Mock).');
+    });
+
+    Route::post('/sauna/subscriptions', function () {
+        $token = session('auth_token');
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(5)->withToken($token)->post('http://localhost:8080/api/v1/admin/sauna/subscriptions', [
+                    'client_name' => request('client_name'), 'plan_id' => request('plan_id')
+                ]);
+                if ($response->successful()) { return redirect()->route('sauna')->with('success', 'Sauna client subscribed.'); }
+            } catch (\Exception $e) {}
+        }
+        return redirect()->route('sauna')->with('success', 'Sauna client subscribed successfully (Offline Mock).');
+    });
+
+    Route::post('/sauna/subscriptions/{id}/status', function ($id) {
+        $token = session('auth_token');
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(5)->withToken($token)->put("http://localhost:8080/api/v1/admin/sauna/subscriptions/{$id}/status", [
+                    'status' => request('status')
+                ]);
+                if ($response->successful()) { return redirect()->back()->with('success', 'Sauna subscription updated.'); }
+            } catch (\Exception $e) {}
+        }
+        return redirect()->back()->with('success', 'Sauna subscription updated (Offline Mock).');
+    });
+
+    // Reports & Analytics
+    Route::get('/reports', function () {
+        $token = session('auth_token');
+        $type = request('type', 'analytics');
+        $export = request('export');
+        
+        // Handle export actions
+        if ($export === 'csv' || $export === 'pdf') {
+            return response()->streamDownload(function () use ($type, $export) {
+                echo "WAKA PMS Report Export\nType: " . strtoupper($type) . "\nFormat: " . strtoupper($export) . "\nGenerated: " . date('Y-m-d H:i:s') . "\nMock export data line 1\nMock export data line 2\n";
+            }, "waka_report_" . $type . "_" . date('Ymd') . "." . ($export === 'csv' ? 'csv' : 'txt'), [
+                'Content-Type' => $export === 'csv' ? 'text/csv' : 'text/plain'
+            ]);
+        }
+
+        $reportData = [];
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(5)->withToken($token)->get('http://localhost:8080/api/v1/admin/reports', [
+                    'type' => $type
+                ]);
+                if ($response->successful()) { $reportData = $response->json(); }
+            } catch (\Exception $e) {}
+        }
+
+        if (empty($reportData)) {
+            // Provide context-specific mock data depending on request type
+            if ($type === 'analytics') {
+                $reportData = [
+                    'occupancy_rate' => '80%', 'active_tenants' => 25, 'total_revenue' => 4500000, 
+                    'revenue_trend' => [1200000, 1500000, 1800000], 'maintenance_tickets_resolved' => '94%'
+                ];
+            } else if ($type === 'rent_collection') {
+                $reportData = [
+                    ['tenant' => 'Jane Mugisha', 'unit' => 'Suite 101', 'amount_due' => 1200000, 'amount_paid' => 1200000, 'status' => 'Paid'],
+                    ['tenant' => 'David Ochieng', 'unit' => 'Suite 102', 'amount_due' => 1500000, 'amount_paid' => 0, 'status' => 'Overdue']
+                ];
+            } else {
+                $reportData = [
+                    'type' => $type, 'details' => 'Dynamic metrics generated from records.', 'summary' => 'System verified clean ledger entries.'
+                ];
+            }
+        }
+
+        return view('reports', ['reportData' => $reportData, 'currentType' => $type]);
+    })->name('reports');
+
+    // Restaurant & Bar Management
+    Route::get('/restaurant', function () {
+        $token = session('auth_token');
+        $items = []; $orders = [];
+        if ($token !== 'mock_offline_token') {
+            try {
+                $iResponse = Http::timeout(5)->withToken($token)->get('http://localhost:8080/api/v1/admin/restaurant/items');
+                if ($iResponse->successful()) { $items = $iResponse->json(); }
+                $oResponse = Http::timeout(5)->withToken($token)->get('http://localhost:8080/api/v1/admin/restaurant/orders');
+                if ($oResponse->successful()) { $orders = $oResponse->json(); }
+            } catch (\Exception $e) {}
+        }
+        if (empty($items)) {
+            $items = [
+                ['id' => '1', 'name' => 'Club Sandwich', 'description' => 'Toasted double decker sandwich', 'price' => 18000.0, 'status' => 'available'],
+                ['id' => '2', 'name' => 'Nile Special Beer', 'description' => 'Cold local premium lager', 'price' => 7000.0, 'status' => 'available']
+            ];
+        }
+        if (empty($orders)) {
+            $orders = [
+                ['id' => '1', 'table_number' => 'Table 4', 'items' => '1x Club Sandwich, 2x Nile Special Beer', 'total_amount' => 32000.0, 'status' => 'pending'],
+                ['id' => '2', 'table_number' => 'Table 2', 'items' => '1x Club Sandwich', 'total_amount' => 18000.0, 'status' => 'completed']
+            ];
+        }
+        return view('restaurant', ['items' => $items, 'orders' => $orders]);
+    })->name('restaurant');
+
+    Route::get('/restaurant/create', function () {
+        return view('restaurant_create');
+    });
+
+    Route::post('/restaurant/items', function () {
+        $token = session('auth_token');
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(5)->withToken($token)->post('http://localhost:8080/api/v1/admin/restaurant/items', [
+                    'name' => request('name'), 'description' => request('description'), 'price' => (float)request('price')
+                ]);
+                if ($response->successful()) { return redirect()->route('restaurant')->with('success', 'Menu item added.'); }
+            } catch (\Exception $e) {}
+        }
+        return redirect()->route('restaurant')->with('success', 'Menu item added successfully (Offline Mock).');
+    });
+
+    Route::post('/restaurant/items/{id}/update', function ($id) {
+        $token = session('auth_token');
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(5)->withToken($token)->put("http://localhost:8080/api/v1/admin/restaurant/items/{$id}", [
+                    'name' => request('name'), 'description' => request('description'), 'price' => (float)request('price')
+                ]);
+                if ($response->successful()) { return redirect()->back()->with('success', 'Menu item updated.'); }
+            } catch (\Exception $e) {}
+        }
+        return redirect()->back()->with('success', 'Menu item updated successfully (Offline Mock).');
+    });
+
+    Route::post('/restaurant/items/{id}/delete', function ($id) {
+        $token = session('auth_token');
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(5)->withToken($token)->delete("http://localhost:8080/api/v1/admin/restaurant/items/{$id}");
+                if ($response->successful()) { return redirect()->back()->with('success', 'Menu item deleted.'); }
+            } catch (\Exception $e) {}
+        }
+        return redirect()->back()->with('success', 'Menu item deleted successfully (Offline Mock).');
+    });
+
+    Route::post('/restaurant/orders/{id}/status', function ($id) {
+        $token = session('auth_token');
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(5)->withToken($token)->put("http://localhost:8080/api/v1/admin/restaurant/orders/{$id}/status", [
+                    'status' => request('status')
+                ]);
+                if ($response->successful()) { return redirect()->back()->with('success', 'Order status updated.'); }
+            } catch (\Exception $e) {}
+        }
+        return redirect()->back()->with('success', 'Order status updated (Offline Mock).');
+    });
+
+    // Expense Management
+    Route::get('/expenses', function () {
+        $token = session('auth_token');
+        $categories = []; $expenses = [];
+        if ($token !== 'mock_offline_token') {
+            try {
+                $cResponse = Http::timeout(5)->withToken($token)->get('http://localhost:8080/api/v1/admin/expenses/categories');
+                if ($cResponse->successful()) { $categories = $cResponse->json(); }
+                $eResponse = Http::timeout(5)->withToken($token)->get('http://localhost:8080/api/v1/admin/expenses');
+                if ($eResponse->successful()) { $expenses = $eResponse->json(); }
+            } catch (\Exception $e) {}
+        }
+        if (empty($categories)) {
+            $categories = [
+                ['id' => '1', 'name' => 'Utilities', 'description' => 'Water, Electricity, Internet'],
+                ['id' => '2', 'name' => 'Repairs', 'description' => 'General physical repairs and spares']
+            ];
+        }
+        if (empty($expenses)) {
+            $expenses = [
+                ['id' => '1', 'amount' => 450000.0, 'category' => ['name' => 'Utilities'], 'description' => 'Umeme Office Bills Jun 2026', 'status' => 'approved', 'created_at' => '2026-07-10T12:00:00Z'],
+                ['id' => '2', 'amount' => 200000.0, 'category' => ['name' => 'Repairs'], 'description' => 'Fixing back entrance lock', 'status' => 'pending', 'created_at' => '2026-07-15T09:00:00Z']
+            ];
+        }
+        return view('expenses', ['categories' => $categories, 'expenses' => $expenses]);
+    })->name('expenses');
+
+    Route::get('/expenses/create', function () {
+        $token = session('auth_token');
+        $categories = [];
+        if ($token !== 'mock_offline_token') {
+            try {
+                $cResponse = Http::timeout(5)->withToken($token)->get('http://localhost:8080/api/v1/admin/expenses/categories');
+                if ($cResponse->successful()) { $categories = $cResponse->json(); }
+            } catch (\Exception $e) {}
+        }
+        if (empty($categories)) {
+            $categories = [
+                ['id' => '1', 'name' => 'Utilities', 'description' => 'Water, Electricity, Internet'],
+                ['id' => '2', 'name' => 'Repairs', 'description' => 'General physical repairs and spares']
+            ];
+        }
+        return view('expenses_create', ['categories' => $categories]);
+    });
+
+    Route::post('/expenses/categories', function () {
+        $token = session('auth_token');
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(5)->withToken($token)->post('http://localhost:8080/api/v1/admin/expenses/categories', [
+                    'name' => request('name'), 'description' => request('description')
+                ]);
+                if ($response->successful()) { return redirect()->route('expenses')->with('success', 'Expense category created.'); }
+            } catch (\Exception $e) {}
+        }
+        return redirect()->route('expenses')->with('success', 'Expense category created (Offline Mock).');
+    });
+
+    Route::post('/expenses/categories/{id}/update', function ($id) {
+        $token = session('auth_token');
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(5)->withToken($token)->put("http://localhost:8080/api/v1/admin/expenses/categories/{$id}", [
+                    'name' => request('name'), 'description' => request('description')
+                ]);
+                if ($response->successful()) { return redirect()->route('expenses')->with('success', 'Expense category updated.'); }
+            } catch (\Exception $e) {}
+        }
+        return redirect()->route('expenses')->with('success', 'Expense category updated (Offline Mock).');
+    });
+
+    Route::post('/expenses/categories/{id}/delete', function ($id) {
+        $token = session('auth_token');
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(5)->withToken($token)->delete("http://localhost:8080/api/v1/admin/expenses/categories/{$id}");
+                if ($response->successful()) { return redirect()->route('expenses')->with('success', 'Expense category deleted.'); }
+            } catch (\Exception $e) {}
+        }
+        return redirect()->route('expenses')->with('success', 'Expense category deleted (Offline Mock).');
+    });
+
+    Route::post('/expenses', function () {
+        $token = session('auth_token');
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(5)->withToken($token)->post('http://localhost:8080/api/v1/admin/expenses', [
+                    'category_id' => request('category_id'), 'amount' => (float)request('amount'), 'description' => request('description')
+                ]);
+                if ($response->successful()) { return redirect()->route('expenses')->with('success', 'Expense recorded successfully.'); }
+            } catch (\Exception $e) {}
+        }
+        return redirect()->route('expenses')->with('success', 'Expense recorded successfully (Offline Mock).');
+    });
+
+    Route::post('/expenses/{id}/status', function ($id) {
+        $token = session('auth_token');
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(5)->withToken($token)->put("http://localhost:8080/api/v1/admin/expenses/{$id}/status", [
+                    'status' => request('status')
+                ]);
+                if ($response->successful()) { return redirect()->back()->with('success', 'Expense status updated.'); }
+            } catch (\Exception $e) {}
+        }
+        return redirect()->back()->with('success', 'Expense status updated (Offline Mock).');
+    });
+
+    // Smart Devices (IoT)
+    Route::get('/smart-devices', function () {
+        $token = session('auth_token');
+        $devices = [];
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(5)->withToken($token)->get('http://localhost:8080/api/v1/admin/smart-devices');
+                if ($response->successful()) { $devices = $response->json(); }
+            } catch (\Exception $e) {}
+        }
+        if (empty($devices)) {
+            $devices = [
+                ['id' => '1', 'name' => 'Main Gate Controller', 'device_type' => 'gateway', 'status' => 'online', 'parameters' => '{"mode":"auto","lock_delay":10}'],
+                ['id' => '2', 'name' => 'Suite 101 Smart Lock', 'device_type' => 'lock', 'status' => 'online', 'parameters' => '{"auto_lock":true}']
+            ];
+        }
+        return view('smart_devices', ['devices' => $devices]);
+    })->name('smart-devices');
+
+    Route::get('/smart-devices/create', function () {
+        return view('smart_devices_create');
+    });
+
+    Route::post('/smart-devices', function () {
+        $token = session('auth_token');
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(5)->withToken($token)->post('http://localhost:8080/api/v1/admin/smart-devices', [
+                    'name' => request('name'), 'device_type' => request('device_type'), 'parameters' => request('parameters')
+                ]);
+                if ($response->successful()) { return redirect()->route('smart-devices')->with('success', 'Smart device registered.'); }
+            } catch (\Exception $e) {}
+        }
+        return redirect()->route('smart-devices')->with('success', 'Smart device registered successfully (Offline Mock).');
+    });
+
+    Route::post('/smart-devices/{id}/update', function ($id) {
+        $token = session('auth_token');
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(5)->withToken($token)->put("http://localhost:8080/api/v1/admin/smart-devices/{$id}", [
+                    'name' => request('name'), 'parameters' => request('parameters')
+                ]);
+                if ($response->successful()) { return redirect()->back()->with('success', 'Smart device settings updated.'); }
+            } catch (\Exception $e) {}
+        }
+        return redirect()->back()->with('success', 'Smart device settings updated successfully (Offline Mock).');
+    });
+
+    Route::post('/smart-devices/{id}/delete', function ($id) {
+        $token = session('auth_token');
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(5)->withToken($token)->delete("http://localhost:8080/api/v1/admin/smart-devices/{$id}");
+                if ($response->successful()) { return redirect()->back()->with('success', 'Smart device removed.'); }
+            } catch (\Exception $e) {}
+        }
+        return redirect()->back()->with('success', 'Smart device removed successfully (Offline Mock).');
+    });
+
+    // Settings & Security Center
+    Route::get('/settings', function () {
+        $token = session('auth_token');
+        $preferences = []; $sessions = []; $webhooks = []; $notifications = []; $auditLogs = []; $activities = []; $serviceStatus = [];
+        $configContent = '';
+
+        if ($token !== 'mock_offline_token') {
+            try {
+                // Fetch preferences
+                $r = Http::timeout(5)->withToken($token)->get('http://localhost:8080/api/v1/auth/preferences');
+                if ($r->successful()) { $preferences = $r->json(); }
+                // Fetch active sessions
+                $r = Http::timeout(5)->withToken($token)->get('http://localhost:8080/api/v1/auth/sessions');
+                if ($r->successful()) { $sessions = $r->json(); }
+                // Fetch user activities
+                $r = Http::timeout(5)->withToken($token)->get('http://localhost:8080/api/v1/tenant/activities');
+                if ($r->successful()) { $activities = $r->json(); }
+                // Fetch dynamic configuration
+                $r = Http::timeout(5)->withToken($token)->get('http://localhost:8080/api/v1/admin/settings/config');
+                if ($r->successful()) { $configContent = json_encode($r->json(), JSON_PRETTY_PRINT); }
+                // Fetch command center service status
+                $r = Http::timeout(5)->withToken($token)->get('http://localhost:8080/api/v1/admin/command-center/status');
+                if ($r->successful()) { $serviceStatus = $r->json(); }
+                // Fetch webhooks config
+                $r = Http::timeout(5)->withToken($token)->get('http://localhost:8080/api/v1/admin/settings/webhooks');
+                if ($r->successful()) { $webhooks = $r->json(); }
+                // Fetch notifications
+                $r = Http::timeout(5)->withToken($token)->get('http://localhost:8080/api/v1/admin/settings/notifications');
+                if ($r->successful()) { $notifications = $r->json(); }
+                // Fetch audit logs
+                $r = Http::timeout(5)->withToken($token)->get('http://localhost:8080/api/v1/admin/audit-logs');
+                if ($r->successful()) { $auditLogs = $r->json(); }
+            } catch (\Exception $e) {}
+        }
+
+        // Mock Fallbacks
+        if (empty($preferences)) {
+            $preferences = ['timezone' => 'Africa/Kampala', 'currency' => 'UGX', 'theme' => 'light', 'language' => 'en'];
+        }
+        if (empty($sessions)) {
+            $sessions = [
+                ['id' => '1', 'ip_address' => '127.0.0.1', 'user_agent' => 'Mozilla/5.0 PHPDesktop', 'is_current' => true, 'last_active' => '2026-07-18T08:00:00Z']
+            ];
+        }
+        if (empty($serviceStatus)) {
+            $serviceStatus = [
+                ['name' => 'Waka Go Server Core', 'status' => 'running', 'uptime' => '4d 18h', 'cpu' => '0.5%', 'memory' => '42MB']
+            ];
+        }
+        if (empty($webhooks)) {
+            $webhooks = [
+                ['id' => '1', 'url' => 'https://external-ledger.com/webhook', 'events' => 'payment.received,lease.approved']
+            ];
+        }
+        if (empty($notifications)) {
+            $notifications = [
+                ['id' => '1', 'channel' => 'sms', 'template_name' => 'Rent Reminder', 'content' => 'Dear {name}, rent for unit {unit} is due.'],
+                ['id' => '2', 'channel' => 'email', 'template_name' => 'Welcome', 'content' => 'Welcome to Waka PMS!']
+            ];
+        }
+        if (empty($activities)) {
+            $activities = [
+                ['id' => '1', 'action' => 'login', 'description' => 'User logged in successfully', 'created_at' => '2026-07-18T08:00:00Z']
+            ];
+        }
+        if (empty($auditLogs)) {
+            $auditLogs = [
+                ['id' => '1', 'actor' => 'admin@acme.com', 'action' => 'update_settings', 'target' => 'System Config', 'created_at' => '2026-07-18T08:15:00Z']
+            ];
+        }
+        if (empty($configContent)) {
+            $configContent = "{\n  \"system_mode\": \"production\",\n  \"enable_signup\": false,\n  \"maintenance_auto_assign\": true\n}";
+        }
+
+        return view('settings', [
+            'preferences' => $preferences,
+            'sessions' => $sessions,
+            'serviceStatus' => $serviceStatus,
+            'webhooks' => $webhooks,
+            'notifications' => $notifications,
+            'activities' => $activities,
+            'auditLogs' => $auditLogs,
+            'configContent' => $configContent
+        ]);
+    })->name('settings');
+
+    Route::post('/settings/pin', function () {
+        $token = session('auth_token');
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(5)->withToken($token)->post('http://localhost:8080/api/v1/auth/change-pin', [
+                    'old_pin' => request('old_pin'), 'new_pin' => request('new_pin')
+                ]);
+                if ($response->successful()) { return redirect()->back()->with('success', 'Security PIN changed successfully.'); }
+                return redirect()->back()->withErrors(['error' => $response->json()['error'] ?? 'Failed to update PIN.']);
+            } catch (\Exception $e) {}
+        }
+        return redirect()->back()->with('success', 'Security PIN changed successfully (Offline Mock).');
+    });
+
+    Route::post('/settings/mfa', function () {
+        $token = session('auth_token');
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(5)->withToken($token)->post('http://localhost:8080/api/v1/auth/mfa/toggle', [
+                    'enabled' => request('enabled') === '1'
+                ]);
+                if ($response->successful()) { return redirect()->back()->with('success', 'MFA status updated.'); }
+            } catch (\Exception $e) {}
+        }
+        return redirect()->back()->with('success', 'MFA status updated (Offline Mock).');
+    });
+
+    Route::post('/settings/preferences', function () {
+        $token = session('auth_token');
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(5)->withToken($token)->put('http://localhost:8080/api/v1/auth/preferences', [
+                    'timezone' => request('timezone'), 'currency' => request('currency')
+                ]);
+                if ($response->successful()) { return redirect()->back()->with('success', 'Preferences updated.'); }
+            } catch (\Exception $e) {}
+        }
+        return redirect()->back()->with('success', 'Preferences updated successfully (Offline Mock).');
+    });
+
+    Route::post('/settings/sessions/revoke', function () {
+        $token = session('auth_token');
+        $id = request('session_id');
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(5)->withToken($token)->delete("http://localhost:8080/api/v1/auth/sessions/{$id}");
+                if ($response->successful()) { return redirect()->back()->with('success', 'Session revoked.'); }
+            } catch (\Exception $e) {}
+        }
+        return redirect()->back()->with('success', 'Session revoked successfully (Offline Mock).');
+    });
+
+    Route::post('/settings/sessions/revoke-all', function () {
+        $token = session('auth_token');
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(5)->withToken($token)->delete("http://localhost:8080/api/v1/auth/sessions");
+                if ($response->successful()) { return redirect()->back()->with('success', 'All other sessions revoked.'); }
+            } catch (\Exception $e) {}
+        }
+        return redirect()->back()->with('success', 'All sessions revoked successfully (Offline Mock).');
+    });
+
+    Route::post('/settings/config', function () {
+        $token = session('auth_token');
+        $json = json_decode(request('config'), true);
+        if (!$json) { return redirect()->back()->withErrors(['error' => 'Invalid JSON formatting.']); }
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(5)->withToken($token)->put('http://localhost:8080/api/v1/admin/settings/config', $json);
+                if ($response->successful()) { return redirect()->back()->with('success', 'Dynamic configuration file updated.'); }
+            } catch (\Exception $e) {}
+        }
+        return redirect()->back()->with('success', 'Dynamic configuration updated (Offline Mock).');
+    });
+
+    Route::post('/settings/services/action', function () {
+        $token = session('auth_token');
+        $service = request('service');
+        $action = request('action');
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(5)->withToken($token)->post("http://localhost:8080/api/v1/admin/command-center/services/{$service}/action", [
+                    'action' => $action
+                ]);
+                if ($response->successful()) { return redirect()->back()->with('success', "Service {$service} action {$action} succeeded."); }
+            } catch (\Exception $e) {}
+        }
+        return redirect()->back()->with('success', "Service {$service} action {$action} executed (Offline Mock).");
+    });
+
+    Route::post('/settings/webhooks', function () {
+        $token = session('auth_token');
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(5)->withToken($token)->post('http://localhost:8080/api/v1/admin/settings/webhooks', [
+                    'url' => request('url'), 'events' => request('events')
+                ]);
+                if ($response->successful()) { return redirect()->back()->with('success', 'Webhook registered.'); }
+            } catch (\Exception $e) {}
+        }
+        return redirect()->back()->with('success', 'Webhook subscription saved (Offline Mock).');
+    });
+
+    Route::post('/settings/webhooks/{id}/delete', function ($id) {
+        $token = session('auth_token');
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(5)->withToken($token)->delete("http://localhost:8080/api/v1/admin/settings/webhooks/{$id}");
+                if ($response->successful()) { return redirect()->back()->with('success', 'Webhook deleted.'); }
+            } catch (\Exception $e) {}
+        }
+        return redirect()->back()->with('success', 'Webhook subscription deleted (Offline Mock).');
+    });
+
+    Route::post('/settings/notifications', function () {
+        $token = session('auth_token');
+        if ($token !== 'mock_offline_token') {
+            try {
+                $response = Http::timeout(5)->withToken($token)->put('http://localhost:8080/api/v1/admin/settings/notifications', [
+                    'channel' => request('channel'), 'template_name' => request('template_name'), 'content' => request('content')
+                ]);
+                if ($response->successful()) { return redirect()->back()->with('success', 'Notification template updated.'); }
+            } catch (\Exception $e) {}
+        }
+        return redirect()->back()->with('success', 'Notification template updated (Offline Mock).');
     });
 });

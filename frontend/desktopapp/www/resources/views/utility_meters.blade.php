@@ -29,6 +29,7 @@
         </div>
         <div class="col-lg-5 col-md-6 col-sm-12">                
             <button class="btn btn-primary btn-icon float-right right_icon_toggle_btn" type="button"><i class="zmdi zmdi-arrow-right"></i></button>
+            <a href="/utility-meters/create" class="btn btn-info float-right mr-2"><i class="zmdi zmdi-plus"></i> Register Utility Meter</a>
         </div>
     </div>
 </div>
@@ -49,55 +50,8 @@
     @endif
 
     <div class="row clearfix">
-        <!-- Register Meter Form -->
-        <div class="col-lg-4 col-md-12">
-            <div class="card">
-                <div class="header">
-                    <h2><strong>Register</strong> Utility Meter</h2>
-                </div>
-                <div class="body">
-                    <form action="/utility-meters" method="POST">
-                        @csrf
-                        
-                        <div class="form-group">
-                            <label for="unit_id">Belongs To Unit <span class="text-danger">*</span></label>
-                            <select id="unit_id" name="unit_id" class="form-control show-tick" required>
-                                <option value="" disabled selected>-- Choose Unit --</option>
-                                @foreach($units as $u)
-                                    <option value="{{ $u['id'] }}">{{ $u['unit_number'] }} ({{ $u['property_name'] ?? 'Property' }})</option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="meter_number">Meter Serial Number <span class="text-danger">*</span></label>
-                            <input type="text" id="meter_number" name="meter_number" class="form-control" placeholder="e.g. MTR-90081" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="type">Utility Type <span class="text-danger">*</span></label>
-                            <select id="type" name="type" class="form-control show-tick" required>
-                                <option value="electricity" selected>Electricity (Power)</option>
-                                <option value="water">Water</option>
-                                <option value="gas">Gas</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="last_reading">Initial Meter Reading <span class="text-danger">*</span></label>
-                            <input type="number" step="0.01" id="last_reading" name="last_reading" class="form-control" value="0.00" required>
-                        </div>
-
-                        <button type="submit" class="btn btn-primary btn-block waves-effect">
-                            <i class="zmdi zmdi-plus"></i> Register Meter
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
-
         <!-- Meters list DataTable -->
-        <div class="col-lg-8 col-md-12">
+        <div class="col-lg-12 col-md-12">
             <div class="card">
                 <div class="header">
                     <h2><strong>Active</strong> Consumption Meters</h2>
@@ -141,8 +95,6 @@
     <script src="{{ asset('assets/plugins/jquery-datatable/buttons/buttons.flash.min.js') }}"></script>
     <script src="{{ asset('assets/plugins/jquery-datatable/buttons/buttons.html5.min.js') }}"></script>
     <script src="{{ asset('assets/plugins/jquery-datatable/buttons/buttons.print.min.js') }}"></script>
-    <!-- Bootstrap Select Plugin Js -->
-    <script src="{{ asset('assets/plugins/bootstrap-select/js/bootstrap-select.js') }}"></script>
     <script>
         $(document).ready(function() {
             // Initialize DataTable
@@ -151,28 +103,6 @@
                 buttons: [
                     'copy', 'csv', 'excel', 'pdf', 'print'
                 ]
-            });
-
-            // Initialize Bootstrap Selectpicker
-            if ($.fn.selectpicker) {
-                $('#unit_id, #type').selectpicker();
-            }
-
-            // Prevent double-clicking and convert submit button into loading spinner
-            $('form').on('submit', function() {
-                var $form = $(this);
-                var $btn = $form.find('button[type="submit"]');
-                
-                if ($btn.data('submitting')) {
-                    return false;
-                }
-                
-                $btn.data('submitting', true);
-                $btn.prop('disabled', true);
-                
-                var originalHtml = $btn.html();
-                $btn.data('original-html', originalHtml);
-                $btn.html('<i class="zmdi zmdi-hc-spin zmdi-spinner"></i> Writing meter records...');
             });
         });
     </script>

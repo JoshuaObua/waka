@@ -31,6 +31,7 @@
         </div>
         <div class="col-lg-5 col-md-6 col-sm-12">                
             <button class="btn btn-primary btn-icon float-right right_icon_toggle_btn" type="button"><i class="zmdi zmdi-arrow-right"></i></button>
+            <a href="/utility-bills/create" class="btn btn-info float-right mr-2"><i class="zmdi zmdi-plus"></i> Generate Utility Bill</a>
         </div>
     </div>
 </div>
@@ -51,60 +52,8 @@
     @endif
 
     <div class="row clearfix">
-        <!-- Log Bill Form -->
-        <div class="col-lg-4 col-md-12">
-            <div class="card">
-                <div class="header">
-                    <h2><strong>Generate</strong> Utility Bill</h2>
-                </div>
-                <div class="body">
-                    <form action="/utility-bills" method="POST">
-                        @csrf
-                        
-                        <div class="form-group">
-                            <label for="meter_id">Select Utility Meter <span class="text-danger">*</span></label>
-                            <select id="meter_id" name="meter_id" class="form-control show-tick" required>
-                                <option value="" disabled selected>-- Choose Meter --</option>
-                                @foreach($meters as $m)
-                                    <option value="{{ $m['id'] }}">
-                                        {{ $m['meter_number'] }} ({{ ucfirst($m['type']) }} - Last Reading: {{ number_format($m['last_reading'] ?? 0, 2) }})
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="tariff_id">Select Billing Tariff Plan <span class="text-danger">*</span></label>
-                            <select id="tariff_id" name="tariff_id" class="form-control show-tick" required>
-                                <option value="" disabled selected>-- Choose Tariff --</option>
-                                @foreach($tariffs as $t)
-                                    <option value="{{ $t['id'] }}">
-                                        {{ $t['name'] }} ({{ number_format($t['rate_per_unit']) }} UGX/unit)
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="current_reading">Current Meter Reading <span class="text-danger">*</span></label>
-                            <input type="number" step="0.01" id="current_reading" name="current_reading" class="form-control" placeholder="Must exceed previous reading" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="due_date">Due Date <span class="text-danger">*</span></label>
-                            <input type="date" id="due_date" name="due_date" class="form-control" value="{{ date('Y-m-d', strtotime('+7 days')) }}" required>
-                        </div>
-
-                        <button type="submit" class="btn btn-primary btn-block waves-effect">
-                            <i class="zmdi zmdi-file-text"></i> Compute & Invoice Bill
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
-
         <!-- Bills list DataTable -->
-        <div class="col-lg-8 col-md-12">
+        <div class="col-lg-12 col-md-12">
             <div class="card">
                 <div class="header">
                     <h2><strong>Active</strong> Consumption Invoices</h2>
@@ -165,8 +114,6 @@
     <script src="{{ asset('assets/plugins/jquery-datatable/buttons/buttons.flash.min.js') }}"></script>
     <script src="{{ asset('assets/plugins/jquery-datatable/buttons/buttons.html5.min.js') }}"></script>
     <script src="{{ asset('assets/plugins/jquery-datatable/buttons/buttons.print.min.js') }}"></script>
-    <!-- Bootstrap Select Plugin Js -->
-    <script src="{{ asset('assets/plugins/bootstrap-select/js/bootstrap-select.js') }}"></script>
     <script>
         $(document).ready(function() {
             // Initialize DataTable
@@ -176,28 +123,6 @@
                     'copy', 'csv', 'excel', 'pdf', 'print'
                 ],
                 order: [[6, "desc"]]
-            });
-
-            // Initialize Bootstrap Selectpicker
-            if ($.fn.selectpicker) {
-                $('#meter_id, #tariff_id').selectpicker();
-            }
-
-            // Prevent double-clicking and convert submit button into loading spinner
-            $('form').on('submit', function() {
-                var $form = $(this);
-                var $btn = $form.find('button[type="submit"]');
-                
-                if ($btn.data('submitting')) {
-                    return false;
-                }
-                
-                $btn.data('submitting', true);
-                $btn.prop('disabled', true);
-                
-                var originalHtml = $btn.html();
-                $btn.data('original-html', originalHtml);
-                $btn.html('<i class="zmdi zmdi-hc-spin zmdi-spinner"></i> Writing bill records...');
             });
         });
     </script>

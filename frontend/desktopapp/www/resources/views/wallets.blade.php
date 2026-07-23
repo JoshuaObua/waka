@@ -7,10 +7,6 @@
     <link rel="stylesheet" href="{{ asset('assets/plugins/jquery-datatable/dataTables.bootstrap4.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/plugins/jquery-datatable/fixedeader/dataTables.fixedcolumns.bootstrap4.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/plugins/jquery-datatable/fixedeader/dataTables.fixedheader.bootstrap4.min.css') }}">
-    <!-- Sweetalert Css -->
-    <link rel="stylesheet" href="{{ asset('assets/plugins/sweetalert/sweetalert.css') }}">
-    <!-- Bootstrap Select Css -->
-    <link rel="stylesheet" href="{{ asset('assets/plugins/bootstrap-select/css/bootstrap-select.css') }}">
     <style>
         .badge-deposit {
             background-color: #28a745;
@@ -45,6 +41,7 @@
         </div>
         <div class="col-lg-5 col-md-6 col-sm-12">                
             <button class="btn btn-primary btn-icon float-right right_icon_toggle_btn" type="button"><i class="zmdi zmdi-arrow-right"></i></button>
+            <a href="/wallets/create" class="btn btn-info float-right mr-2"><i class="zmdi zmdi-money"></i> New Transaction</a>
         </div>
     </div>
 </div>
@@ -113,81 +110,9 @@
         </div>
     </div>
 
+    <!-- Ledger Entries Table -->
     <div class="row clearfix">
-        <!-- Forms Panel (Topup & Payouts) -->
-        <div class="col-lg-5 col-md-12">
-            <!-- Tenant Topup -->
-            <div class="card">
-                <div class="header">
-                    <h2><strong>Tenant</strong> Wallet Top-Up (Collections)</h2>
-                </div>
-                <div class="body">
-                    <form action="/wallets/top-up" method="POST">
-                        @csrf
-                        <div class="form-group">
-                            <label for="profile_id">Select Tenant <span class="text-danger">*</span></label>
-                            <select id="profile_id" name="profile_id" class="form-control show-tick" required>
-                                <option value="" disabled selected>-- Choose Tenant Profile --</option>
-                                @foreach($tenantsList as $t)
-                                    <option value="{{ $t['id'] }}">
-                                        {{ $t['user']['first_name'] ?? '' }} {{ $t['user']['last_name'] ?? '' }} ({{ $t['user']['email'] ?? '' }})
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="phone">Payer Phone Number <span class="text-danger">*</span></label>
-                            <input type="text" id="phone" name="phone" class="form-control" placeholder="e.g. 0111777771" required>
-                            <small class="text-muted"><i class="zmdi zmdi-info"></i> Note: Use <code class="text-success">0111777771</code> to trigger successful collections in sandbox.</small>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="amount">Amount (UGX) <span class="text-danger">*</span></label>
-                            <input type="number" id="amount" name="amount" min="1000" class="form-control" placeholder="e.g. 250000" required>
-                        </div>
-
-                        <button type="submit" class="btn btn-primary btn-block waves-effect">
-                            <i class="zmdi zmdi-phone-setting"></i> Initiate Collection Top-Up
-                        </button>
-                    </form>
-                </div>
-            </div>
-
-            <!-- Landlord Payout -->
-            <div class="card">
-                <div class="header">
-                    <h2><strong>Landlord</strong> Disbursement (Disburse Cash)</h2>
-                </div>
-                <div class="body">
-                    <form action="/wallets/disburse" method="POST">
-                        @csrf
-                        <div class="form-group">
-                            <label for="payee_phone">Payee Phone Number <span class="text-danger">*</span></label>
-                            <input type="text" id="payee_phone" name="payee_phone" class="form-control" placeholder="e.g. 0111777771" required>
-                            <small class="text-muted"><i class="zmdi zmdi-info"></i> Note: Escrows out of the landlord wallet to the vendor or landlord phone.</small>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="note">Disbursement Purpose / Note <span class="text-danger">*</span></label>
-                            <input type="text" id="note" name="note" class="form-control" placeholder="e.g. Plumbing repairs settlement" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="disburse_amount">Amount (UGX) <span class="text-danger">*</span></label>
-                            <input type="number" id="disburse_amount" name="amount" min="1000" class="form-control" placeholder="e.g. 150000" required>
-                        </div>
-
-                        <button type="submit" class="btn btn-danger btn-block waves-effect">
-                            <i class="zmdi zmdi-money-off"></i> Execute Mobile Money Payout
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-        <!-- Ledger Entries Table -->
-        <div class="col-lg-7 col-md-12">
+        <div class="col-lg-12 col-md-12">
             <div class="card">
                 <div class="header">
                     <h2><strong>Double-Entry</strong> Financial Ledger</h2>
@@ -244,10 +169,6 @@
     <script src="{{ asset('assets/plugins/jquery-datatable/buttons/buttons.flash.min.js') }}"></script>
     <script src="{{ asset('assets/plugins/jquery-datatable/buttons/buttons.html5.min.js') }}"></script>
     <script src="{{ asset('assets/plugins/jquery-datatable/buttons/buttons.print.min.js') }}"></script>
-    <!-- Sweetalert Plugin Js -->
-    <script src="{{ asset('assets/plugins/sweetalert/sweetalert.min.js') }}"></script>
-    <!-- Bootstrap Select Plugin Js -->
-    <script src="{{ asset('assets/plugins/bootstrap-select/js/bootstrap-select.js') }}"></script>
     <script>
         $(document).ready(function() {
             // Initialize DataTable with Export Capabilities
@@ -258,28 +179,6 @@
                 ],
                 order: [[0, "desc"]],
                 pageLength: 10
-            });
-
-            // Initialize Bootstrap Selectpicker
-            if ($.fn.selectpicker) {
-                $('#profile_id').selectpicker();
-            }
-
-            // Prevent double-clicking and convert button into circular loading spinner
-            $('form').on('submit', function() {
-                var $form = $(this);
-                var $btn = $form.find('button[type="submit"]');
-                
-                if ($btn.data('submitting')) {
-                    return false;
-                }
-                
-                $btn.data('submitting', true);
-                $btn.prop('disabled', true);
-                
-                var originalHtml = $btn.html();
-                $btn.data('original-html', originalHtml);
-                $btn.html('<i class="zmdi zmdi-hc-spin zmdi-spinner"></i> Initiating Payment Gateway Transaction...');
             });
         });
     </script>
